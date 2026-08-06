@@ -1,0 +1,68 @@
+/*
+ * Design tokens — Menara Office.
+ * Brand blues extracted from the logo (deep harbour navy → steel blue),
+ * applied to a light, Hostinger-inspired Modern-SaaS system.
+ */
+:root {
+  /* Brand palette (logo blues) */
+  --brand-950: oklch(24% 0.05 240);
+  --brand-900: #0b2e4a;
+  --brand-800: #12466e;
+  --brand-700: #175d8d;
+  --brand-600: #1d74ac;
+  --brand-500: #2b8ac2; /* primary steel blue from "OFFICE" wordmark */
+  --brand-400: #56a7d4;
+  --brand-300: #8ec4e4;
+  --brand-200: #c3e0f1;
+  --brand-100: #e3f1f9;
+  --brand-50: #f2f9fd;
+
+  /* Accent — warm amber for badges & highlights (Hostinger-style promo pop) */
+  --accent-500: #f59e0b;
+  --accent-100: #fef3c7;
+
+  /* WhatsApp green, darkened until white text passes WCAG AA (≥4.5:1) */
+  --wa-600: #0e7a43;
+  --wa-700: #0b6136;
+
+  /* Semantic surfaces */
+  --color-surface: #ffffff;
+  --color-surface-alt: #f6f9fc;
+  --color-surface-navy: var(--brand-900);
+  --color-border: #e2e8f0;
+  --color-text: #10243a;
+  --color-text-muted: #52677d;
+  --color-text-inverse: #f2f9fd;
+
+  /* Status */
+  --color-success: #16a34a;
+  --color-warning: #d97706;
+  --color-danger: #dc2626;
+
+  /* Typography scale */
+  --text-xs: 0.8125rem;
+  --text-sm: 0.9rem;
+  --text-base: clamp(1rem, 0.95rem + 0.25vw, 1.0625rem);
+  --text-lg: clamp(1.125rem, 1.05rem + 0.4vw, 1.3rem);
+  --text-xl: clamp(1.35rem, 1.2rem + 0.75vw, 1.75rem);
+  --text-2xl: clamp(1.75rem, 1.5rem + 1.25vw, 2.4rem);
+  --text-hero: clamp(2.25rem, 1.4rem + 4.2vw, 4.25rem);
+
+  /* Spacing rhythm */
+  --space-section: clamp(4rem, 3rem + 5vw, 8.5rem);
+  --space-card: clamp(1.25rem, 1rem + 1vw, 2rem);
+
+  /* Radii & shadows */
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 22px;
+  --radius-pill: 999px;
+  --shadow-card: 0 1px 2px rgb(11 46 74 / 0.06), 0 8px 24px -8px rgb(11 46 74 / 0.12);
+  --shadow-lift: 0 2px 4px rgb(11 46 74 / 0.08), 0 20px 44px -12px rgb(11 46 74 / 0.22);
+
+  /* Motion */
+  --duration-fast: 150ms;
+  --duration-normal: 300ms;
+  --duration-slow: 600ms;
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}

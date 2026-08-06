@@ -1,0 +1,11 @@
+import { chromium } from '@playwright/test'
+const browser = await chromium.launch()
+const page = await browser.newPage({ viewport: { width: 1440, height: 2400 } })
+await page.goto('http://localhost:3000/id')
+await page.waitForLoadState('networkidle')
+await page.evaluate(() => new Promise(r => setTimeout(r, 800)))
+await page.screenshot({ path: 'screenshots/qa-home-full.png', fullPage: true })
+await page.goto('http://localhost:3000/id/booking')
+await page.waitForLoadState('networkidle')
+await page.screenshot({ path: 'screenshots/qa-booking.png' })
+await browser.close()

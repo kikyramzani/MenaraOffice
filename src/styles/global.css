@@ -1,0 +1,198 @@
+@import 'tailwindcss';
+/*
+ * Explicit sources: Tailwind's automatic scanner treats the parentheses in
+ * route-group folders like app/admin/(dashboard) as glob syntax and skips
+ * them, silently dropping utilities used only there (e.g. min-w-[840px]).
+ */
+@source '../app';
+@source '../components';
+@import './tokens.css';
+
+@theme inline {
+  --color-brand-50: var(--brand-50);
+  --color-brand-100: var(--brand-100);
+  --color-brand-200: var(--brand-200);
+  --color-brand-300: var(--brand-300);
+  --color-brand-400: var(--brand-400);
+  --color-brand-500: var(--brand-500);
+  --color-brand-600: var(--brand-600);
+  --color-brand-700: var(--brand-700);
+  --color-brand-800: var(--brand-800);
+  --color-brand-900: var(--brand-900);
+  --color-accent: var(--accent-500);
+  --color-accent-soft: var(--accent-100);
+  --color-surface: var(--color-surface);
+  --color-surface-alt: var(--color-surface-alt);
+  --color-ink: var(--color-text);
+  --color-ink-muted: var(--color-text-muted);
+  --color-line: var(--color-border);
+  --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: var(--text-base);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: var(--brand-200);
+  color: var(--brand-900);
+}
+
+:focus-visible {
+  outline: 2px solid var(--brand-500);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Scroll-reveal primitives — transform/opacity only, compositor friendly */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity var(--duration-slow) var(--ease-out-expo),
+    transform var(--duration-slow) var(--ease-out-expo);
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Partner logo trust-bar — transform-only scroll, pauses on hover/focus */
+.marquee-viewport {
+  overflow: hidden;
+  mask-image: linear-gradient(90deg, transparent, black 8%, black 92%, transparent);
+}
+
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee-scroll 28s linear infinite;
+}
+
+.marquee-viewport:hover .marquee-track,
+.marquee-viewport:focus-within .marquee-track {
+  animation-play-state: paused;
+}
+
+@keyframes marquee-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Shared section rhythm */
+.section {
+  padding-block: var(--space-section);
+}
+
+.container-site {
+  width: 100%;
+  max-width: 76rem;
+  margin-inline: auto;
+  padding-inline: clamp(1rem, 4vw, 2.5rem);
+}
+
+/* Blog article typography (markdown output) */
+.prose-mo {
+  color: var(--color-text);
+  line-height: 1.75;
+}
+
+.prose-mo h2 {
+  margin-top: 2.2em;
+  margin-bottom: 0.6em;
+  font-size: var(--text-xl);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--brand-900);
+}
+
+.prose-mo h3 {
+  margin-top: 1.8em;
+  margin-bottom: 0.5em;
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: var(--brand-900);
+}
+
+.prose-mo p {
+  margin-block: 1em;
+}
+
+.prose-mo ul,
+.prose-mo ol {
+  margin-block: 1em;
+  padding-left: 1.4em;
+}
+
+.prose-mo ul {
+  list-style: disc;
+}
+
+.prose-mo ol {
+  list-style: decimal;
+}
+
+.prose-mo li {
+  margin-block: 0.4em;
+}
+
+.prose-mo a {
+  color: var(--brand-600);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.prose-mo strong {
+  font-weight: 700;
+  color: var(--brand-900);
+}
+
+/* Hostinger-style soft gradient wash used behind heros and CTA bands */
+.wash-hero {
+  background:
+    radial-gradient(60rem 30rem at 85% -10%, var(--brand-100) 0%, transparent 60%),
+    radial-gradient(40rem 24rem at -10% 20%, var(--brand-50) 0%, transparent 55%),
+    var(--color-surface);
+}
+
+.wash-navy {
+  background:
+    radial-gradient(50rem 26rem at 90% 0%, rgb(43 138 194 / 0.25) 0%, transparent 60%),
+    var(--brand-900);
+  color: var(--color-text-inverse);
+}
