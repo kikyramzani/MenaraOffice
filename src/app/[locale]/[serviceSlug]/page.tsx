@@ -7,10 +7,11 @@ import { notFound } from 'next/navigation'
 import { Link } from '@/i18n/navigation'
 import { routing, type Locale } from '@/i18n/routing'
 import { getStore } from '@/lib/data'
-import { pickL10n } from '@/lib/format'
+import { formatRupiahFull, pickL10n } from '@/lib/format'
 import { Icon } from '@/components/ui/Icon'
 import { RevealOnScroll } from '@/components/ui/RevealOnScroll'
 import { PricingSection } from '@/components/pricing/PricingSection'
+import { LocationCapacityList, type CapacityItem } from '@/components/pricing/LocationCapacityList'
 import { CtaBand } from '@/components/home/CtaBand'
 
 export const dynamic = 'force-dynamic'
@@ -49,6 +50,37 @@ export default async function ServicePage({ params }: { params: Promise<Params> 
   const tHero = await getTranslations('hero')
   const typedLocale = locale as Locale
   const isMeetingRoom = service.slug === 'meeting-room'
+  const isServicedOffice = service.slug === 'serviced-office'
+
+  let capacityItems: CapacityItem[] = []
+  let capacityHeading = ''
+
+  if (isMeetingRoom) {
+    const store = getStore()
+    const [rooms, locations] = await Promise.all([store.getRooms(), store.getLocations()])
+    const locationById = new Map(locations.map((location) => [location.id, location]))
+    capacityItems = rooms
+      .filter((room) => room.active && locationById.get(room.locationId)?.active)
+      .map((room) => ({
+        locationId: room.locationId,
+        locationName: locationById.get(room.locationId)?.name ?? room.name,
+        badges: [
+          t('capacityPax', { count: room.capacity }),
+          `${formatRupiahFull(room.pricePerHour)}${t('perHour')}`,
+        ],
+      }))
+    capacityHeading = t('meetingRoomCapacityHeading')
+  } else if (isServicedOffice) {
+    const locations = await getStore().getLocations()
+    capacityItems = locations
+      .filter((location) => location.active && location.servicedOfficeCapacities.length > 0)
+      .map((location) => ({
+        locationId: location.id,
+        locationName: location.name,
+        badges: location.servicedOfficeCapacities.map((pax) => t('capacityPax', { count: pax })),
+      }))
+    capacityHeading = t('servicedOfficeCapacityHeading')
+  }
 
   return (
     <>
@@ -127,6 +159,8 @@ export default async function ServicePage({ params }: { params: Promise<Params> 
           </ul>
         </div>
       </section>
+
+      <LocationCapacityList title={capacityHeading} items={capacityItems} />
 
       <PricingSection service={service} locale={typedLocale} />
 

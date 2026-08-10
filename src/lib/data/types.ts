@@ -37,6 +37,8 @@ export type OfficeLocation = {
   photo: string
   gmapsQuery: string
   facilities: L10n[]
+  /** Serviced Office room sizes (pax) available at this location; empty when not offered here. */
+  servicedOfficeCapacities: number[]
   order: number
   active: boolean
 }

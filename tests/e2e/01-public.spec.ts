@@ -54,16 +54,35 @@ test.describe('Halaman publik', () => {
     await expect(page.locator('#pricing').getByRole('link', { name: 'Pilih Paket' })).toHaveCount(1)
   })
 
-  test('halaman serviced office menampilkan harga 4 Juta', async ({ page }) => {
+  test('halaman serviced office menampilkan harga 4 Juta dan kapasitas per lokasi', async ({ page }) => {
     await page.goto('/id/serviced-office')
     await expect(page.locator('#pricing')).toContainText('4 Juta')
+
+    const capacity = page.locator('section[aria-labelledby="capacity-heading"]')
+    await expect(capacity.getByText('Kapasitas Tersedia per Lokasi')).toBeVisible()
+    // Menara Karya: 2, 3, 4 pax — Epiwalk & Pejaten: 4 pax — Bekasi: 3 & 4 pax.
+    const menaraKarya = capacity.locator('div', { hasText: 'Menara Karya Tower' }).last()
+    await expect(menaraKarya.getByText('2 pax')).toBeVisible()
+    await expect(menaraKarya.getByText('3 pax')).toBeVisible()
+    await expect(menaraKarya.getByText('4 pax')).toBeVisible()
+    // Cempaka Mas & Bandung have no serviced-office capacity data, so they must not appear here.
+    await expect(capacity.getByText('Ruko Mega Grosir Cempaka Mas')).toHaveCount(0)
   })
 
-  test('halaman meeting room hanya 1 paket 100rb/jam dan link booking', async ({ page }) => {
+  test('halaman meeting room hanya 1 paket 100rb/jam, link booking, dan kapasitas per lokasi', async ({ page }) => {
     await page.goto('/id/meeting-room')
     await expect(page.locator('#pricing')).toContainText('100rb')
     await expect(page.locator('#pricing').getByRole('link', { name: 'Pilih Paket' })).toHaveCount(1)
     await expect(page.getByRole('link', { name: /Booking Meeting Room|Booking Ruang Rapat/ }).first()).toBeVisible()
+
+    const capacity = page.locator('section[aria-labelledby="capacity-heading"]')
+    await expect(capacity.getByText('Ruang Rapat Tersedia per Lokasi')).toBeVisible()
+    // 6 pax: Menara Karya, Epiwalk, Cempaka Mas — 8 pax: Pejaten (Wisma Perkasa), Bekasi.
+    await expect(capacity.locator('div', { hasText: 'Menara Karya Tower' }).last().getByText('6 pax')).toBeVisible()
+    await expect(capacity.locator('div', { hasText: 'Epiwalk Rasuna Epicentrum' }).last().getByText('6 pax')).toBeVisible()
+    await expect(capacity.locator('div', { hasText: 'Ruko Mega Grosir Cempaka Mas' }).last().getByText('6 pax')).toBeVisible()
+    await expect(capacity.locator('div', { hasText: 'Wisma Perkasa' }).last().getByText('8 pax')).toBeVisible()
+    await expect(capacity.locator('div', { hasText: 'Ruko Celebration Boulevard' }).last().getByText('8 pax')).toBeVisible()
   })
 
   test('ganti bahasa ke English mengubah konten', async ({ page }) => {

@@ -55,6 +55,14 @@ function parseFeatureLines(raw: string): L10n[] {
     })
 }
 
+/** Comma-separated whole numbers, e.g. "2, 3, 4" — used for pax-capacity lists. */
+function parseNumberList(raw: string): number[] {
+  return raw
+    .split(',')
+    .map((part) => Number(part.trim()))
+    .filter((value) => Number.isFinite(value) && value > 0)
+}
+
 // ---------- auth ----------
 
 export async function loginAction(
@@ -166,6 +174,7 @@ export async function saveLocationAction(formData: FormData): Promise<void> {
     photo: text(formData, 'photo') || existing.photo,
     gmapsQuery: text(formData, 'gmapsQuery') || existing.gmapsQuery,
     facilities: parseFeatureLines(text(formData, 'facilities')),
+    servicedOfficeCapacities: parseNumberList(text(formData, 'servicedOfficeCapacities')),
     active: formData.get('active') === 'on',
   }
 

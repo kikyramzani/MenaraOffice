@@ -35,7 +35,10 @@
     "features": "Yang Anda dapatkan",
     "pricingTitle": "Pilih paket {service}",
     "pricingSubtitle": "Harga transparan, tanpa biaya tersembunyi. Hubungi kami untuk kebutuhan khusus.",
-    "askWhatsApp": "Tanya via WhatsApp"
+    "askWhatsApp": "Tanya via WhatsApp",
+    "meetingRoomCapacityHeading": "Ruang Rapat Tersedia per Lokasi",
+    "servicedOfficeCapacityHeading": "Kapasitas Tersedia per Lokasi",
+    "capacityPax": "{count} pax"
   },
   "locations": {
     "eyebrow": "Lokasi Kami",

@@ -35,7 +35,10 @@
     "features": "What you get",
     "pricingTitle": "Choose your {service} plan",
     "pricingSubtitle": "Transparent pricing with no hidden fees. Contact us for custom needs.",
-    "askWhatsApp": "Ask on WhatsApp"
+    "askWhatsApp": "Ask on WhatsApp",
+    "meetingRoomCapacityHeading": "Meeting Rooms Available per Location",
+    "servicedOfficeCapacityHeading": "Available Capacity per Location",
+    "capacityPax": "{count} pax"
   },
   "locations": {
     "eyebrow": "Our Locations",

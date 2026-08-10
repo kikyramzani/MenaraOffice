@@ -53,6 +53,20 @@ export default async function AdminLocationEditPage({
               />
             </Field>
           </div>
+          <div className="mt-4">
+            <Field
+              label="Kapasitas Serviced Office (pax)"
+              htmlFor="servicedOfficeCapacities"
+              hint="Angka dipisah koma, contoh: 2, 3, 4 — kosongkan jika Serviced Office tidak tersedia di lokasi ini"
+            >
+              <input
+                id="servicedOfficeCapacities"
+                name="servicedOfficeCapacities"
+                defaultValue={location.servicedOfficeCapacities.join(', ')}
+                className={adminInputClass}
+              />
+            </Field>
+          </div>
           <label className="mt-4 flex items-center gap-2 text-sm font-semibold text-[var(--brand-900)]">
             <input type="checkbox" name="active" defaultChecked={location.active} className="h-4 w-4" />
             Lokasi aktif (tampil di website)

@@ -68,9 +68,17 @@ async function loadDb(): Promise<Database> {
     const raw = await readFile(DB_FILE, 'utf8')
     const parsed = JSON.parse(raw) as Database
     if (Array.isArray(parsed.services) && parsed.settings) {
-      // Older persisted files predate the `partners` field; default it in
-      // rather than rejecting the whole file as malformed.
-      g.__moDb = { ...parsed, partners: parsed.partners ?? seedDatabase.partners }
+      // Older persisted files predate the `partners` field and locations
+      // predate `servicedOfficeCapacities` — default both in rather than
+      // rejecting the whole file as malformed.
+      g.__moDb = {
+        ...parsed,
+        partners: parsed.partners ?? seedDatabase.partners,
+        locations: parsed.locations.map((location) => ({
+          ...location,
+          servicedOfficeCapacities: location.servicedOfficeCapacities ?? [],
+        })),
+      }
     } else {
       console.warn('[local-store] db file has unexpected shape — falling back to seed content')
       g.__moDb = clone(seedDatabase)
