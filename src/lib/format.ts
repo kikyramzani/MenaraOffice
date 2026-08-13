@@ -1,4 +1,4 @@
-import type { L10n } from '@/lib/data/types'
+import type { L10n, PricingTier } from '@/lib/data/types'
 import type { Locale } from '@/i18n/routing'
 
 /**
@@ -21,6 +21,38 @@ export function formatRupiahShort(amount: number, locale: Locale): string {
 /** Full thousands-separated rupiah, e.g. "Rp 4.000.000". */
 export function formatRupiahFull(amount: number): string {
   return `Rp ${new Intl.NumberFormat('id-ID').format(amount)}`
+}
+
+export type PriceUnit = PricingTier['unit']
+
+/**
+ * Translation key for a price unit, e.g. 'year' → 'perYear'.
+ *
+ * Centralised because four call sites used to repeat the same ternary chain,
+ * and two of them had a catch-all `else` that would silently mislabel any new
+ * unit instead of failing the build.
+ */
+export function unitLabelKey(unit: PriceUnit): 'perMonth' | 'perYear' | 'perHour' | 'once' {
+  if (unit === 'month') return 'perMonth'
+  if (unit === 'year') return 'perYear'
+  if (unit === 'hour') return 'perHour'
+  return 'once'
+}
+
+/** Indonesian-only unit noun for the admin panel, which is not translated. */
+export function unitLabelId(unit: PriceUnit): string {
+  if (unit === 'month') return 'bulan'
+  if (unit === 'year') return 'tahun'
+  if (unit === 'hour') return 'jam'
+  return 'paket'
+}
+
+/** Compact suffix for admin list rows, e.g. '/bln'. */
+export function unitSuffixId(unit: PriceUnit): string {
+  if (unit === 'month') return '/bln'
+  if (unit === 'year') return '/thn'
+  if (unit === 'hour') return '/jam'
+  return ''
 }
 
 export function pickL10n(text: L10n, locale: Locale): string {

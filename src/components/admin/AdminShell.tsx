@@ -13,6 +13,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: '/admin', label: 'Dashboard', icon: 'globe' },
   { href: '/admin/leads', label: 'Leads', icon: 'mail' },
   { href: '/admin/booking', label: 'Booking', icon: 'calendar' },
+  { href: '/admin/tanggal-libur', label: 'Tanggal Libur', icon: 'clock' },
   { href: '/admin/layanan', label: 'Layanan & Harga', icon: 'building' },
   { href: '/admin/lokasi', label: 'Lokasi', icon: 'map-pin' },
   { href: '/admin/ruangan', label: 'Ruang Rapat', icon: 'meeting' },

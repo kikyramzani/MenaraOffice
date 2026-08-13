@@ -42,7 +42,9 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const lead = await getStore().createLead({
+    const store = getStore()
+    const settings = await store.getSettings()
+    const lead = await store.createLead({
       name: parsed.data.name,
       phone: parsed.data.phone,
       email: parsed.data.email,
@@ -50,7 +52,7 @@ export async function POST(request: NextRequest) {
       message: parsed.data.message,
       source: 'website',
     })
-    await notifyNewLead(lead)
+    await notifyNewLead(lead, settings)
     return NextResponse.json({ ok: true, id: lead.id })
   } catch (error) {
     console.error('[api/leads] failed to store lead:', error)

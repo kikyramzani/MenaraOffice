@@ -28,6 +28,7 @@
     "startFrom": "Start from",
     "perMonth": "/month",
     "perHour": "/hour",
+    "perYear": "/year",
     "once": "one-time",
     "viewDetail": "View Details",
     "popular": "Most Popular",
@@ -84,7 +85,11 @@
     "noSlots": "No slots left on this date. Please pick another day.",
     "selectTimeFirst": "Select a start time on the calendar above",
     "prevMonth": "Previous month",
-    "nextMonth": "Next month"
+    "nextMonth": "Next month",
+    "blockedWeekend": "Closed on weekends",
+    "blockedHoliday": "Public holiday",
+    "blockedLegend": "Closed / holiday",
+    "blockedError": "This date is not available for booking. Please choose another date."
   },
   "contact": {
     "title": "Tell us what your business needs",

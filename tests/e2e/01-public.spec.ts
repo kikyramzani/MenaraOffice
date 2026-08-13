@@ -37,7 +37,7 @@ test.describe('Halaman publik', () => {
     await expect(page).toHaveURL(/\/id$/)
   })
 
-  test('halaman virtual office menampilkan paket Basic 4 Juta dan Business 6 Juta', async ({ page }) => {
+  test('halaman virtual office: Basic 4 Juta & Business 6 Juta, keduanya per tahun', async ({ page }) => {
     await page.goto('/id/virtual-office')
     await expect(page.locator('h1')).toContainText('Virtual Office')
     await expect(page.locator('#pricing')).toContainText('4 Juta')
@@ -45,12 +45,17 @@ test.describe('Halaman publik', () => {
     await expect(page.locator('#pricing')).toContainText('6 Juta')
     await expect(page.locator('#pricing')).toContainText('Business')
     await expect(page.locator('#pricing')).toContainText('Meeting Room Semua Cabang')
+    // Harga VO adalah tarif tahunan, bukan bulanan.
+    await expect(page.locator('#pricing').getByText('/tahun')).toHaveCount(2)
+    await expect(page.locator('#pricing').getByText('/bulan')).toHaveCount(0)
     await expect(page.locator('#pricing').getByRole('link', { name: 'Pilih Paket' })).toHaveCount(2)
   })
 
-  test('halaman pendirian PT menampilkan satu paket PT 6 Juta', async ({ page }) => {
+  test('halaman pendirian menampilkan paket PT/CV/Firma/Yayasan 6 Juta', async ({ page }) => {
     await page.goto('/id/pendirian-pt')
     await expect(page.locator('#pricing')).toContainText('6 Juta')
+    await expect(page.locator('#pricing')).toContainText('PT/CV/Firma/Yayasan')
+    await expect(page.locator('#pricing')).toContainText('Start From')
     await expect(page.locator('#pricing').getByRole('link', { name: 'Pilih Paket' })).toHaveCount(1)
   })
 
@@ -69,9 +74,9 @@ test.describe('Halaman publik', () => {
     await expect(capacity.getByText('Ruko Mega Grosir Cempaka Mas')).toHaveCount(0)
   })
 
-  test('halaman meeting room hanya 1 paket 100rb/jam, link booking, dan kapasitas per lokasi', async ({ page }) => {
+  test('halaman meeting room hanya 1 paket 150rb/jam, link booking, dan kapasitas per lokasi', async ({ page }) => {
     await page.goto('/id/meeting-room')
-    await expect(page.locator('#pricing')).toContainText('100rb')
+    await expect(page.locator('#pricing')).toContainText('150rb')
     await expect(page.locator('#pricing').getByRole('link', { name: 'Pilih Paket' })).toHaveCount(1)
     await expect(page.getByRole('link', { name: /Booking Meeting Room|Booking Ruang Rapat/ }).first()).toBeVisible()
 
@@ -143,5 +148,24 @@ test.describe('Halaman publik', () => {
     await page.getByPlaceholder('Alamat email Anda').fill(email)
     await page.getByRole('button', { name: 'Berlangganan' }).click()
     await expect(page.getByText('Terima kasih! Anda sudah terdaftar.')).toBeVisible()
+  })
+
+  test('footer menampilkan kedua alamat email resmi', async ({ page }) => {
+    await page.goto('/id')
+    const footer = page.locator('footer')
+    await expect(footer.getByRole('link', { name: 'menaraoffice.id@gmail.com' })).toBeVisible()
+    await expect(footer.getByRole('link', { name: 'marketing@menaraoffice.id' })).toBeVisible()
+    await expect(footer.getByText('info@menaraoffice.id')).toHaveCount(0)
+  })
+
+  test('nomor WhatsApp baru dipakai di seluruh website', async ({ page }) => {
+    await page.goto('/id')
+    const waLinks = page.locator('a[href*="wa.me"]')
+    const count = await waLinks.count()
+    expect(count).toBeGreaterThan(0)
+    for (let index = 0; index < count; index += 1) {
+      const href = await waLinks.nth(index).getAttribute('href')
+      expect(href).toContain('wa.me/6287752556600')
+    }
   })
 })

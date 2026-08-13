@@ -2,17 +2,16 @@ import { getTranslations } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
 import type { Locale } from '@/i18n/routing'
 import type { Service } from '@/lib/data/types'
-import { formatRupiahShort, pickL10n } from '@/lib/format'
+import { formatRupiahShort, pickL10n, unitLabelKey, type PriceUnit } from '@/lib/format'
 import { Icon } from '@/components/ui/Icon'
 import { SectionHeading } from '@/components/ui/SectionHeading'
 import { RevealOnScroll } from '@/components/ui/RevealOnScroll'
 
 type Props = { services: Service[]; locale: Locale }
 
-function unitLabel(unit: 'month' | 'hour' | 'once', t: (key: string) => string): string {
-  if (unit === 'month') return t('perMonth')
-  if (unit === 'hour') return t('perHour')
-  return ` ${t('once')}`
+function unitLabel(unit: PriceUnit, t: (key: string) => string): string {
+  // perMonth/perYear/perHour already lead with a slash; `once` needs a space.
+  return unit === 'once' ? ` ${t('once')}` : t(unitLabelKey(unit))
 }
 
 export async function ServicesGrid({ services, locale }: Props) {

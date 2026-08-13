@@ -42,6 +42,8 @@ const badgeTones: Record<string, string> = {
   draft: 'bg-slate-100 text-slate-600',
   active: 'bg-[#dcfce7] text-[#166534]',
   inactive: 'bg-slate-100 text-slate-600',
+  holiday: 'bg-[var(--accent-100)] text-[#92400e]',
+  manual: 'bg-[var(--brand-100)] text-[var(--brand-800)]',
 }
 
 const badgeLabels: Record<string, string> = {
@@ -55,6 +57,8 @@ const badgeLabels: Record<string, string> = {
   draft: 'Draf',
   active: 'Aktif',
   inactive: 'Nonaktif',
+  holiday: 'Libur Nasional',
+  manual: 'Acara Internal',
 }
 
 export function StatusBadge({ status }: { status: string }) {

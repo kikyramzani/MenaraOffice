@@ -1,13 +1,28 @@
 import { test, expect } from '@playwright/test'
-import { futureDate, gotoHydrated } from './helpers'
+import {
+  firstBookableDate,
+  firstDateWithBlockReason,
+  gotoHydrated,
+  nextSaturday,
+} from './helpers'
 
 /**
  * Booking flow — runs serially: the second test depends on the slot created
  * by the first to prove the anti-double-booking guarantee end-to-end.
  */
+// Rejection tests set a distinct x-real-ip each: they are logically separate
+// clients, and sharing one would trip the 5-per-minute booking rate limit
+// partway through the suite.
 test.describe.serial('Booking meeting room', () => {
-  const targetDate = futureDate(3)
-  const targetDay = Number(targetDate.split('-')[2])
+  // Resolved from the server rather than hardcoded: today+N can land on a
+  // weekend or a seeded national holiday, both of which are now blocked.
+  let targetDate = ''
+  let targetDay = 0
+
+  test.beforeAll(async ({ request }) => {
+    targetDate = await firstBookableDate(request, 'room-mk-a', 3)
+    targetDay = Number(targetDate.split('-')[2])
+  })
 
   async function fillBookingUpToSlot(page: import('@playwright/test').Page) {
     await gotoHydrated(page, '/id/booking')
@@ -57,6 +72,7 @@ test.describe.serial('Booking meeting room', () => {
 
   test('API menolak booking yang tumpang tindih (409)', async ({ request }) => {
     const response = await request.post('/api/bookings', {
+      headers: { 'x-real-ip': '10.0.0.11' },
       data: {
         roomId: 'room-mk-a',
         date: targetDate,
@@ -75,6 +91,7 @@ test.describe.serial('Booking meeting room', () => {
 
   test('API menolak tanggal lampau dan jam di luar operasional', async ({ request }) => {
     const past = await request.post('/api/bookings', {
+      headers: { 'x-real-ip': '10.0.0.12' },
       data: {
         roomId: 'room-mk-a',
         date: '2020-01-01',
@@ -89,9 +106,10 @@ test.describe.serial('Booking meeting room', () => {
     expect(past.status()).toBe(400)
 
     const outside = await request.post('/api/bookings', {
+      headers: { 'x-real-ip': '10.0.0.13' },
       data: {
         roomId: 'room-mk-a',
-        date: futureDate(5),
+        date: targetDate,
         startHour: 22,
         endHour: 24,
         name: 'Lembur Malam',
@@ -101,6 +119,7 @@ test.describe.serial('Booking meeting room', () => {
       },
     })
     expect(outside.status()).toBe(400)
+    expect((await outside.json()).error).toBe('outside_hours')
   })
 
   test('endpoint availability mengembalikan slot terisi', async ({ request }) => {
@@ -110,5 +129,70 @@ test.describe.serial('Booking meeting room', () => {
     expect(body.booked).toEqual(
       expect.arrayContaining([expect.objectContaining({ startHour: 9, endHour: 11 })]),
     )
+  })
+
+  test('kalender menonaktifkan hari Sabtu dan menjelaskan alasannya', async ({ page }) => {
+    await gotoHydrated(page, '/id/booking')
+    const saturday = nextSaturday()
+    const satDay = Number(saturday.split('-')[2])
+    const cell = page.getByRole('button', { name: String(satDay), exact: true })
+
+    await expect(cell).toBeDisabled()
+    // Guards the title-not-aria-label decision: switching to aria-label would
+    // change the accessible name and break the selector on the line above.
+    await expect(cell).toHaveAttribute('title', /tutup/i)
+  })
+
+  test('API menolak booking di hari Sabtu (blocked_date/weekend)', async ({ request }) => {
+    const response = await request.post('/api/bookings', {
+      headers: { 'x-real-ip': '10.0.0.14' },
+      data: {
+        roomId: 'room-mk-a',
+        date: nextSaturday(),
+        startHour: 9,
+        endHour: 10,
+        name: 'Akhir Pekan',
+        phone: '081211112222',
+        email: 'weekend@example.com',
+        notes: '',
+      },
+    })
+    expect(response.status()).toBe(400)
+    const body = await response.json()
+    expect(body.error).toBe('blocked_date')
+    expect(body.reason).toBe('weekend')
+  })
+
+  test('availability melaporkan hari Sabtu tertutup tanpa membocorkan slot', async ({ request }) => {
+    const response = await request.get(`/api/availability?roomId=room-mk-a&date=${nextSaturday()}`)
+    expect(response.ok()).toBeTruthy()
+    const body = await response.json()
+    expect(body.blockedReason).toBe('weekend')
+    expect(body.booked).toEqual([])
+  })
+
+  test('libur nasional yang di-seed ditolak dengan alasan holiday', async ({ request }) => {
+    // Dicari lewat API, bukan tanggal keras: tanggal keras akan lewat dan
+    // kemudian ditolak sebagai past_date, membuat test lolos/gagal salah sebab.
+    const holidayDate = await firstDateWithBlockReason(request, 'room-mk-a', 'holiday')
+    test.skip(holidayDate === null, 'tidak ada libur nasional tersisa di seed')
+
+    const response = await request.post('/api/bookings', {
+      headers: { 'x-real-ip': '10.0.0.15' },
+      data: {
+        roomId: 'room-mk-a',
+        date: holidayDate as string,
+        startHour: 9,
+        endHour: 10,
+        name: 'Hari Libur',
+        phone: '081211112222',
+        email: 'holiday@example.com',
+        notes: '',
+      },
+    })
+    expect(response.status()).toBe(400)
+    const body = await response.json()
+    expect(body.error).toBe('blocked_date')
+    expect(body.reason).toBe('holiday')
   })
 })

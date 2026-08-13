@@ -13,6 +13,7 @@ import {
   type NewLead,
 } from './store'
 import type {
+  BlockedDate,
   Booking,
   BookingStatus,
   Database,
@@ -68,12 +69,20 @@ async function loadDb(): Promise<Database> {
     const raw = await readFile(DB_FILE, 'utf8')
     const parsed = JSON.parse(raw) as Database
     if (Array.isArray(parsed.services) && parsed.settings) {
-      // Older persisted files predate the `partners` field and locations
-      // predate `servicedOfficeCapacities` — default both in rather than
-      // rejecting the whole file as malformed.
+      // Files written by an earlier version lack fields added since. Default
+      // them in rather than rejecting the whole file as malformed — a missing
+      // array would otherwise crash on the first `.sort()`/`.filter()`.
       g.__moDb = {
         ...parsed,
         partners: parsed.partners ?? seedDatabase.partners,
+        blockedDates: parsed.blockedDates ?? seedDatabase.blockedDates,
+        settings: {
+          ...seedDatabase.settings,
+          ...parsed.settings,
+          // Defaulting to Sat+Sun rather than [] matters: [] would silently
+          // reopen weekends on every existing deployment.
+          closedWeekdays: parsed.settings.closedWeekdays ?? seedDatabase.settings.closedWeekdays,
+        },
         locations: parsed.locations.map((location) => ({
           ...location,
           servicedOfficeCapacities: location.servicedOfficeCapacities ?? [],
@@ -211,6 +220,25 @@ export class LocalStore implements DataStore {
     await withLock(async () => {
       const db = await loadDb()
       await persist({ ...db, partners: db.partners.filter((p) => p.id !== id) })
+    })
+  }
+
+  async getBlockedDates(): Promise<BlockedDate[]> {
+    const db = await loadDb()
+    return clone(db.blockedDates).sort((a, b) => (a.date < b.date ? -1 : 1))
+  }
+
+  async saveBlockedDate(blockedDate: BlockedDate): Promise<void> {
+    await withLock(async () => {
+      const db = await loadDb()
+      await persist({ ...db, blockedDates: upsert(db.blockedDates, clone(blockedDate)) })
+    })
+  }
+
+  async deleteBlockedDate(id: string): Promise<void> {
+    await withLock(async () => {
+      const db = await loadDb()
+      await persist({ ...db, blockedDates: db.blockedDates.filter((entry) => entry.id !== id) })
     })
   }
 

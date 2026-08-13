@@ -28,6 +28,7 @@
     "startFrom": "Mulai dari",
     "perMonth": "/bulan",
     "perHour": "/jam",
+    "perYear": "/tahun",
     "once": "sekali bayar",
     "viewDetail": "Lihat Detail",
     "popular": "Paling Populer",
@@ -84,7 +85,11 @@
     "noSlots": "Tidak ada slot tersisa di tanggal ini. Silakan pilih tanggal lain.",
     "selectTimeFirst": "Pilih jam mulai pada kalender di atas",
     "prevMonth": "Bulan sebelumnya",
-    "nextMonth": "Bulan berikutnya"
+    "nextMonth": "Bulan berikutnya",
+    "blockedWeekend": "Sabtu & Minggu tutup",
+    "blockedHoliday": "Hari libur nasional",
+    "blockedLegend": "Tutup / libur",
+    "blockedError": "Tanggal ini tidak tersedia untuk booking. Silakan pilih tanggal lain."
   },
   "contact": {
     "title": "Konsultasikan kebutuhan kantor Anda",

@@ -1,14 +1,26 @@
-import type { Database, L10n } from './types'
+import type { BlockedDate, Database, L10n } from './types'
 
 const l = (id: string, en: string): L10n => ({ id, en })
 
+/** Date-derived ids keep the Supabase provisioning insert idempotent. */
+const holiday = (date: string, id: string, en: string): BlockedDate => ({
+  id: `holiday-${date}`,
+  date,
+  label: l(id, en),
+  // Empty = every location: a national holiday closes the whole company.
+  locationIds: [],
+  source: 'holiday',
+  active: true,
+})
+
 /**
- * Initial content, ported from menaraoffice.id with the September-2026 price
- * revision applied: Virtual Office and Serviced Office start from Rp 4 juta
- * (was 3.5 juta); Meeting Room stays at Rp 100 rb/jam.
+ * Initial content, ported from menaraoffice.id with the August-2026 price
+ * revision applied: Virtual Office starts from Rp 4 juta **per year**,
+ * Serviced Office from Rp 4 juta per month, and Meeting Room is a flat
+ * Rp 150 rb/jam across every branch.
  *
- * Non-"Basic" tiers are placeholders awaiting real price points, every value
- * here is editable from the admin panel, nothing is hardcoded in pages.
+ * Every value here is editable from the admin panel; nothing is hardcoded in
+ * pages.
  */
 export const seedDatabase: Database = {
   services: [
@@ -40,7 +52,7 @@ export const seedDatabase: Database = {
           id: 'tier-vo-basic',
           name: 'Basic',
           price: 4_000_000,
-          unit: 'month',
+          unit: 'year',
           priceNote: l('Start From', 'Start From'),
           features: [
             l('Alamat bergengsi', 'Prestigious address'),
@@ -58,7 +70,7 @@ export const seedDatabase: Database = {
           id: 'tier-vo-business',
           name: 'Business',
           price: 6_000_000,
-          unit: 'month',
+          unit: 'year',
           priceNote: l('Meeting Room Semua Cabang', 'All-Branch Meeting Room'),
           features: [
             l('Semua fitur Basic', 'Everything in Basic'),
@@ -142,7 +154,7 @@ export const seedDatabase: Database = {
         {
           id: 'tier-mr-hourly',
           name: 'Basic',
-          price: 100_000,
+          price: 150_000,
           unit: 'hour',
           priceNote: l('Start From', 'Start From'),
           features: [
@@ -162,14 +174,14 @@ export const seedDatabase: Database = {
     {
       id: 'svc-pendirian-pt',
       slug: 'pendirian-pt',
-      name: l('Pendirian PT & CV', 'Company Incorporation (PT & CV)'),
+      name: l('Pendirian PT/CV/Firma/Yayasan', 'Company Incorporation (PT/CV/Firma/Foundation)'),
       tagline: l(
         'Urus legalitas usaha dari akta sampai NIB, dibantu sampai tuntas',
         'Company legality handled end-to-end, from deed to business licence',
       ),
       description: l(
-        'Paket pendirian PT, PT Perorangan, dan CV lengkap dengan akta notaris, SK Kemenkumham, NPWP, dan NIB. Gabungkan dengan Virtual Office untuk alamat domisili yang memenuhi syarat zonasi.',
-        'Incorporation packages for PT, sole-proprietor PT, and CV, complete with notarial deed, ministry approval, tax ID, and business licence. Combine with a Virtual Office for a zoning-compliant registered address.',
+        'Paket pendirian PT, PT Perorangan, CV, Firma, dan Yayasan lengkap dengan akta notaris, SK Kemenkumham, NPWP, dan NIB. Gabungkan dengan Virtual Office untuk alamat domisili yang memenuhi syarat zonasi.',
+        'Incorporation packages for PT, sole-proprietor PT, CV, Firma, and Foundations, complete with notarial deed, ministry approval, tax ID, and business licence. Combine with a Virtual Office for a zoning-compliant registered address.',
       ),
       icon: 'document',
       heroImage: '/images/locations/epiwalk.webp',
@@ -183,7 +195,7 @@ export const seedDatabase: Database = {
       tiers: [
         {
           id: 'tier-pt-pt',
-          name: 'PT',
+          name: 'PT/CV/Firma/Yayasan',
           price: 6_000_000,
           unit: 'once',
           priceNote: l('Start From', 'Start From'),
@@ -354,12 +366,12 @@ export const seedDatabase: Database = {
   ],
 
   rooms: [
-    { id: 'room-mk-a', locationId: 'loc-menara-karya', name: 'Ruang Rapat Karya', capacity: 6, pricePerHour: 100_000, active: true },
+    { id: 'room-mk-a', locationId: 'loc-menara-karya', name: 'Ruang Rapat Karya', capacity: 6, pricePerHour: 150_000, active: true },
     { id: 'room-wp-a', locationId: 'loc-wisma-perkasa', name: 'Ruang Rapat Perkasa', capacity: 8, pricePerHour: 150_000, active: true },
-    { id: 'room-ep-a', locationId: 'loc-epiwalk', name: 'Ruang Rapat Epiwalk', capacity: 6, pricePerHour: 100_000, active: true },
-    { id: 'room-cm-a', locationId: 'loc-cempaka-mas', name: 'Ruang Rapat Cempaka', capacity: 6, pricePerHour: 100_000, active: true },
+    { id: 'room-ep-a', locationId: 'loc-epiwalk', name: 'Ruang Rapat Epiwalk', capacity: 6, pricePerHour: 150_000, active: true },
+    { id: 'room-cm-a', locationId: 'loc-cempaka-mas', name: 'Ruang Rapat Cempaka', capacity: 6, pricePerHour: 150_000, active: true },
     { id: 'room-bk-a', locationId: 'loc-bekasi', name: 'Ruang Rapat Celebration', capacity: 8, pricePerHour: 150_000, active: true },
-    { id: 'room-bd-a', locationId: 'loc-bandung', name: 'Ruang Rapat MTC', capacity: 8, pricePerHour: 100_000, active: true },
+    { id: 'room-bd-a', locationId: 'loc-bandung', name: 'Ruang Rapat MTC', capacity: 8, pricePerHour: 150_000, active: true },
   ],
 
   bookings: [],
@@ -398,8 +410,8 @@ export const seedDatabase: Database = {
         'Effective meetings are about structure, not length. These five simple habits make small-team meetings far more productive.',
       ),
       content: l(
-        'Rapat yang buruk menghabiskan jam kerja paling mahal di perusahaan Anda. Lima kebiasaan ini terbukti membuat rapat lebih efektif:\n\n1. **Tentukan keputusan yang dicari**, bukan sekadar topik.\n2. **Bagikan materi sebelum rapat**, bukan saat rapat.\n3. **Batasi 30 sampai 45 menit** dengan timer terlihat.\n4. **Satu notulis, satu daftar tindak lanjut** dengan penanggung jawab.\n5. **Pisahkan ruang**, rapat penting butuh ruangan yang bebas gangguan.\n\nButuh ruang rapat profesional per jam? Meeting room Menara Office bisa dipesan online mulai Rp 100 ribu/jam.',
-        "Bad meetings burn your company's most expensive hours. These five habits make meetings measurably better:\n\n1. **Define the decision you need**, not just the topic.\n2. **Share materials before the meeting**, not during it.\n3. **Cap it at 30 to 45 minutes** with a visible timer.\n4. **One note-taker, one action list** with clear owners.\n5. **Change rooms**, important meetings deserve a distraction-free space.\n\nNeed a professional meeting room by the hour? Menara Office rooms can be booked online from Rp 100k/hour.",
+        'Rapat yang buruk menghabiskan jam kerja paling mahal di perusahaan Anda. Lima kebiasaan ini terbukti membuat rapat lebih efektif:\n\n1. **Tentukan keputusan yang dicari**, bukan sekadar topik.\n2. **Bagikan materi sebelum rapat**, bukan saat rapat.\n3. **Batasi 30 sampai 45 menit** dengan timer terlihat.\n4. **Satu notulis, satu daftar tindak lanjut** dengan penanggung jawab.\n5. **Pisahkan ruang**, rapat penting butuh ruangan yang bebas gangguan.\n\nButuh ruang rapat profesional per jam? Meeting room Menara Office bisa dipesan online mulai Rp 150 ribu/jam.',
+        "Bad meetings burn your company's most expensive hours. These five habits make meetings measurably better:\n\n1. **Define the decision you need**, not just the topic.\n2. **Share materials before the meeting**, not during it.\n3. **Cap it at 30 to 45 minutes** with a visible timer.\n4. **One note-taker, one action list** with clear owners.\n5. **Change rooms**, important meetings deserve a distraction-free space.\n\nNeed a professional meeting room by the hour? Menara Office rooms can be booked online from Rp 150k/hour.",
       ),
       cover: '/images/locations/epiwalk.webp',
       status: 'published',
@@ -460,13 +472,29 @@ export const seedDatabase: Database = {
     },
   ],
 
+  /**
+   * Libur nasional sisa 2026 per SKB 3 Menteri (No. 1497/2025). Semuanya
+   * tanggal resmi, bukan perkiraan. September–November 2026 tidak ada libur
+   * nasional. Libur 2027 ditambahkan admin setelah SKB-nya terbit — tanggal
+   * berbasis kalender lunar (Islam, Saka, Waisak) tidak boleh ditebak di sini.
+   */
+  blockedDates: [
+    holiday('2026-08-17', 'Hari Proklamasi Kemerdekaan RI', 'Indonesian Independence Day'),
+    holiday('2026-08-25', 'Maulid Nabi Muhammad SAW', 'Birthday of the Prophet Muhammad'),
+    holiday('2026-12-24', 'Cuti Bersama Natal', 'Christmas joint leave'),
+    holiday('2026-12-25', 'Hari Raya Natal', 'Christmas Day'),
+  ],
+
   settings: {
-    waNumber: '6282262981118',
-    email: 'info@menaraoffice.id',
+    waNumber: '6287752556600',
+    email: 'menaraoffice.id@gmail.com',
+    emailSecondary: 'marketing@menaraoffice.id',
     instagram: 'menaraoffice.id',
     headOffice:
       'Menara Karya, Jl. H.R. Rasuna Said Blok X-5 Kav. 1-2, Kuningan, Jakarta Selatan 12950',
     bookingOpenHour: 8,
     bookingCloseHour: 20,
+    // Sabtu (6) dan Minggu (0) tutup: kantor libur, ruangan tidak disewakan.
+    closedWeekdays: [0, 6],
   },
 }

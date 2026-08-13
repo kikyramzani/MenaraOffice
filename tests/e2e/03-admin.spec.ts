@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { adminLogin, ADMIN_EMAIL } from './helpers'
+import { adminLogin, ADMIN_EMAIL, firstBookableDate, gotoHydrated } from './helpers'
 
 test.describe.serial('Panel admin', () => {
   test('halaman admin tanpa sesi diarahkan ke login', async ({ page }) => {
@@ -110,7 +110,14 @@ test.describe.serial('Panel admin', () => {
 
   test('halaman pengaturan, ruangan, lokasi, blog dapat diakses', async ({ page }) => {
     await adminLogin(page)
-    for (const path of ['/admin/pengaturan', '/admin/ruangan', '/admin/lokasi', '/admin/blog', '/admin/partner']) {
+    for (const path of [
+      '/admin/pengaturan',
+      '/admin/ruangan',
+      '/admin/lokasi',
+      '/admin/blog',
+      '/admin/partner',
+      '/admin/tanggal-libur',
+    ]) {
       await page.goto(path)
       await expect(page.locator('h1')).toBeVisible()
     }
@@ -122,5 +129,37 @@ test.describe.serial('Panel admin', () => {
     await page.waitForURL('**/admin/login')
     await page.goto('/admin')
     await expect(page).toHaveURL(/\/admin\/login/)
+  })
+
+  test('admin memblokir tanggal dan kalender publik langsung menonaktifkannya', async ({
+    page,
+    request,
+  }) => {
+    // minDaysAhead jauh di depan agar tidak bertabrakan dengan tanggal yang
+    // dipakai suite booking (02-*), yang berjalan lebih dulu.
+    const target = await firstBookableDate(request, 'room-mk-a', 40)
+    const targetDay = Number(target.split('-')[2])
+
+    await adminLogin(page)
+    await page.goto('/admin/tanggal-libur')
+    await page.getByLabel('Tanggal', { exact: true }).fill(target)
+    await page.getByLabel('Keterangan (Indonesia)').fill('Acara internal E2E')
+    await page.getByRole('button', { name: 'Tambah' }).click()
+    await expect(page.getByText('Acara internal E2E')).toBeVisible()
+
+    // Server sekarang harus menolaknya.
+    const response = await request.get(`/api/availability?roomId=room-mk-a&date=${target}`)
+    expect((await response.json()).blockedReason).toBe('event')
+
+    await gotoHydrated(page, '/id/booking')
+    await expect(page.getByRole('button', { name: String(targetDay), exact: true })).toBeDisabled()
+
+    // Bersihkan agar run berikutnya kembali dari kondisi yang sama.
+    await page.goto('/admin/tanggal-libur')
+    await page
+      .locator('div', { hasText: 'Acara internal E2E' })
+      .getByRole('button', { name: 'Hapus' })
+      .last()
+      .click()
   })
 })

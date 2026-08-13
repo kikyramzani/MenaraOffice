@@ -6,6 +6,12 @@ import { bookingSchema } from '@/lib/schemas'
 import { formatRupiahFull, formatHour } from '@/lib/format'
 import { waLink, WA_NUMBER } from '@/lib/whatsapp'
 import { clsx } from '@/lib/clsx'
+import {
+  findDateBlock,
+  type BlockReason,
+  type DateBlock,
+  type DateBlockRule,
+} from '@/lib/booking-calendar'
 import { Icon } from '@/components/ui/Icon'
 
 export type BookingRoom = {
@@ -25,11 +31,15 @@ export type BookingLocation = {
 type Props = {
   locations: BookingLocation[]
   rooms: BookingRoom[]
+  blockedDates: DateBlockRule[]
+  closedWeekdays: number[]
 }
 
 type Availability = {
   openHour: number
   closeHour: number
+  /** Non-null when the whole day is closed (weekend, holiday, internal event). */
+  blockedReason: BlockReason | null
   booked: { startHour: number; endHour: number }[]
 }
 
@@ -45,7 +55,7 @@ function toIso(date: Date): string {
 const inputClass =
   'w-full rounded-[var(--radius-md)] border border-[var(--color-border)] bg-white px-4 py-3 text-sm text-[var(--color-text)] focus:border-[var(--brand-500)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-200)]'
 
-export function BookingWidget({ locations, rooms }: Props) {
+export function BookingWidget({ locations, rooms, blockedDates, closedWeekdays }: Props) {
   const t = useTranslations('booking')
   const locale = useLocale()
 
@@ -83,6 +93,26 @@ export function BookingWidget({ locations, rooms }: Props) {
         : (roomsForLocation[0]?.id ?? ''),
     )
   }, [roomsForLocation])
+
+  const blockedFor = useCallback(
+    (iso: string) => findDateBlock(iso, locationId, blockedDates, closedWeekdays),
+    [locationId, blockedDates, closedWeekdays],
+  )
+
+  const blockTitle = useCallback(
+    (block: DateBlock) => {
+      if (block.label) return locale === 'en' ? block.label.en : block.label.id
+      return block.reason === 'weekend' ? t('blockedWeekend') : t('blockedHoliday')
+    },
+    [locale, t],
+  )
+
+  // Switching location can turn the already-picked date into a blocked one (an
+  // internal event at the new location), so drop the selection rather than fire
+  // an availability request for a day the server will refuse anyway.
+  useEffect(() => {
+    setSelectedDate((current) => (current && blockedFor(current) ? null : current))
+  }, [blockedFor])
 
   const loadAvailability = useCallback(async (signal?: AbortSignal) => {
     if (!roomId || !selectedDate) return
@@ -211,7 +241,11 @@ export function BookingWidget({ locations, rooms }: Props) {
         return
       }
       if (!response.ok) {
-        setError(t('genericError'))
+        // 400 bodies carry a machine-readable `error`; only blocked_date needs
+        // its own copy. The catch matters because a platform-level 500 may not
+        // be JSON at all, and an unguarded .json() would throw past setState.
+        const body = (await response.json().catch(() => null)) as { error?: string } | null
+        setError(body?.error === 'blocked_date' ? t('blockedError') : t('genericError'))
         setState('idle')
         return
       }
@@ -369,18 +403,25 @@ export function BookingWidget({ locations, rooms }: Props) {
               if (!date) return <span key={`empty-${index}`} />
               const iso = toIso(date)
               const isPast = date < today
+              const block = isPast ? null : blockedFor(iso)
               const isSelected = iso === selectedDate
               return (
                 <button
                   key={iso}
                   type="button"
-                  disabled={isPast}
+                  disabled={isPast || block !== null}
+                  // `title`, never `aria-label`: the accessible name has to stay
+                  // the bare day number, otherwise every day-cell selector breaks.
+                  title={block ? blockTitle(block) : undefined}
                   aria-pressed={isSelected}
                   onClick={() => setSelectedDate(iso)}
                   className={clsx(
                     'aspect-square rounded-[var(--radius-sm)] text-sm font-semibold transition-colors',
                     isPast && 'cursor-not-allowed text-[var(--color-text-muted)]/40',
-                    !isPast && !isSelected && 'text-[var(--brand-900)] hover:bg-[var(--brand-100)]',
+                    !isPast &&
+                      block !== null &&
+                      'cursor-not-allowed bg-[var(--color-surface-alt)] text-[var(--color-text-muted)]/60 line-through',
+                    !isPast && !block && !isSelected && 'text-[var(--brand-900)] hover:bg-[var(--brand-100)]',
                     isSelected && 'bg-[var(--brand-700)] text-white shadow-[var(--shadow-card)]',
                   )}
                 >
@@ -388,6 +429,13 @@ export function BookingWidget({ locations, rooms }: Props) {
                 </button>
               )
             })}
+          </div>
+
+          <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-[var(--color-text-muted)]">
+            <span className="inline-flex items-center gap-1.5">
+              <span className="h-3 w-3 rounded bg-[var(--color-surface-alt)]" />
+              {t('blockedLegend')}
+            </span>
           </div>
         </fieldset>
 
@@ -402,6 +450,11 @@ export function BookingWidget({ locations, rooms }: Props) {
             <p className="mt-4 text-sm text-[var(--color-text-muted)]">{t('stepDate')} →</p>
           ) : loadingAvailability ? (
             <p className="mt-4 animate-pulse text-sm text-[var(--color-text-muted)]">…</p>
+          ) : availability?.blockedReason ? (
+            // Must precede allBooked: a closed day returns booked: [], so
+            // allBooked is false and the slot grid would otherwise render as
+            // though every hour were free.
+            <p className="mt-4 text-sm font-medium text-[var(--color-warning)]">{t('blockedError')}</p>
           ) : allBooked ? (
             <p className="mt-4 text-sm font-medium text-[var(--color-warning)]">{t('noSlots')}</p>
           ) : (

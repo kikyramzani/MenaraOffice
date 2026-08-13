@@ -15,6 +15,7 @@ create table if not exists rooms         (id text primary key, data jsonb not nu
 create table if not exists posts         (id text primary key, data jsonb not null, updated_at timestamptz not null default now());
 create table if not exists testimonials  (id text primary key, data jsonb not null, updated_at timestamptz not null default now());
 create table if not exists partners      (id text primary key, data jsonb not null, updated_at timestamptz not null default now());
+create table if not exists blocked_dates (id text primary key, data jsonb not null, updated_at timestamptz not null default now());
 create table if not exists settings      (id text primary key, data jsonb not null, updated_at timestamptz not null default now());
 
 -- ---------- transactional tables ----------
@@ -66,6 +67,17 @@ alter table rooms        enable row level security;
 alter table posts        enable row level security;
 alter table testimonials enable row level security;
 alter table partners     enable row level security;
+alter table blocked_dates enable row level security;
+
+-- ---------- one-time provisioning: libur nasional sisa 2026 ----------
+-- Only for a FRESH project. Re-running this on a live project resurrects any
+-- holiday the admin deliberately deleted from /admin/tanggal-libur.
+insert into blocked_dates (id, data) values
+  ('holiday-2026-08-17', '{"id":"holiday-2026-08-17","date":"2026-08-17","label":{"id":"Hari Proklamasi Kemerdekaan RI","en":"Indonesian Independence Day"},"locationIds":[],"source":"holiday","active":true}'::jsonb),
+  ('holiday-2026-08-25', '{"id":"holiday-2026-08-25","date":"2026-08-25","label":{"id":"Maulid Nabi Muhammad SAW","en":"Birthday of the Prophet Muhammad"},"locationIds":[],"source":"holiday","active":true}'::jsonb),
+  ('holiday-2026-12-24', '{"id":"holiday-2026-12-24","date":"2026-12-24","label":{"id":"Cuti Bersama Natal","en":"Christmas joint leave"},"locationIds":[],"source":"holiday","active":true}'::jsonb),
+  ('holiday-2026-12-25', '{"id":"holiday-2026-12-25","date":"2026-12-25","label":{"id":"Hari Raya Natal","en":"Christmas Day"},"locationIds":[],"source":"holiday","active":true}'::jsonb)
+on conflict (id) do nothing;
 alter table settings     enable row level security;
 alter table bookings     enable row level security;
 alter table leads        enable row level security;

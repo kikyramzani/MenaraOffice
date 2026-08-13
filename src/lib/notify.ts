@@ -1,6 +1,6 @@
 import 'server-only'
 
-import type { Booking, Lead } from '@/lib/data/types'
+import type { Booking, Lead, SiteSettings } from '@/lib/data/types'
 
 /**
  * Email notifications via Resend. Fire-and-forget with logging: a failed
@@ -8,9 +8,11 @@ import type { Booking, Lead } from '@/lib/data/types'
  * already stored and visible in the admin inbox either way.
  */
 
-async function send(subject: string, html: string): Promise<void> {
+async function send(subject: string, html: string, fallbackTo?: string): Promise<void> {
   const apiKey = process.env.RESEND_API_KEY
-  const to = process.env.NOTIFY_EMAIL_TO
+  // Env wins so a deployment can redirect notifications without a content
+  // edit; otherwise the admin-editable contact address is the destination.
+  const to = process.env.NOTIFY_EMAIL_TO || fallbackTo
   if (!apiKey || !to) {
     console.info(`[notify] RESEND not configured — skipped email: ${subject}`)
     return
@@ -20,7 +22,10 @@ async function send(subject: string, html: string): Promise<void> {
     const { Resend } = await import('resend')
     const resend = new Resend(apiKey)
     const { error } = await resend.emails.send({
-      from: 'Menara Office Website <onboarding@resend.dev>',
+      // onboarding@resend.dev is Resend's sandbox sender and only delivers to
+      // the account owner. Set RESEND_FROM to a verified domain address for
+      // real delivery.
+      from: process.env.RESEND_FROM || 'Menara Office Website <onboarding@resend.dev>',
       to,
       subject,
       html,
@@ -34,7 +39,7 @@ async function send(subject: string, html: string): Promise<void> {
 const esc = (value: string): string =>
   value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
 
-export async function notifyNewLead(lead: Lead): Promise<void> {
+export async function notifyNewLead(lead: Lead, settings?: SiteSettings): Promise<void> {
   await send(
     `Lead baru: ${lead.name}`,
     `<h2>Lead baru dari website</h2>
@@ -43,10 +48,15 @@ export async function notifyNewLead(lead: Lead): Promise<void> {
      <strong>Email:</strong> ${esc(lead.email)}<br/>
      <strong>Layanan:</strong> ${esc(lead.service)}</p>
      <p>${esc(lead.message)}</p>`,
+    settings?.email,
   )
 }
 
-export async function notifyNewBooking(booking: Booking, roomName: string): Promise<void> {
+export async function notifyNewBooking(
+  booking: Booking,
+  roomName: string,
+  settings?: SiteSettings,
+): Promise<void> {
   await send(
     `Booking baru: ${roomName} ${booking.date}`,
     `<h2>Permintaan booking meeting room</h2>
@@ -58,5 +68,6 @@ export async function notifyNewBooking(booking: Booking, roomName: string): Prom
      <strong>Email:</strong> ${esc(booking.email)}</p>
      <p>${esc(booking.notes)}</p>
      <p>Konfirmasi booking ini dari panel admin.</p>`,
+    settings?.email,
   )
 }

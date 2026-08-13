@@ -1,7 +1,7 @@
 import { getTranslations } from 'next-intl/server'
 import type { Locale } from '@/i18n/routing'
 import type { Service } from '@/lib/data/types'
-import { formatRupiahShort, pickL10n } from '@/lib/format'
+import { formatRupiahShort, pickL10n, unitLabelKey, type PriceUnit } from '@/lib/format'
 import { waLink, WA_NUMBER } from '@/lib/whatsapp'
 import { clsx } from '@/lib/clsx'
 import { Icon } from '@/components/ui/Icon'
@@ -19,8 +19,10 @@ export async function PricingSection({ service, locale }: Props) {
   const tiers = [...service.tiers].sort((a, b) => a.order - b.order)
   const serviceName = pickL10n(service.name, locale)
 
-  const unitLabel = (unit: 'month' | 'hour' | 'once') =>
-    unit === 'month' ? t('perMonth') : unit === 'hour' ? t('perHour') : ` ${t('once')}`
+  // perMonth/perYear/perHour already lead with a slash; `once` is a standalone
+  // noun so it needs the separating space.
+  const unitLabel = (unit: PriceUnit) =>
+    unit === 'once' ? ` ${t('once')}` : t(unitLabelKey(unit))
 
   return (
     <section className="section bg-[var(--color-surface-alt)]" aria-labelledby="pricing-heading" id="pricing">

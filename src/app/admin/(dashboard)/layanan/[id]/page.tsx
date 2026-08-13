@@ -80,7 +80,7 @@ export default async function AdminServiceEditPage({
                   <Field label="Nama paket" htmlFor={`tier_${index}_name`}>
                     <input id={`tier_${index}_name`} name={`tier_${index}_name`} defaultValue={tier.name} className={adminInputClass} />
                   </Field>
-                  <Field label={`Harga (Rp, per ${tier.unit === 'month' ? 'bulan' : tier.unit === 'hour' ? 'jam' : 'paket'})`} htmlFor={`tier_${index}_price`}>
+                  <Field label="Harga (Rp)" htmlFor={`tier_${index}_price`}>
                     <input
                       id={`tier_${index}_price`}
                       name={`tier_${index}_price`}
@@ -90,6 +90,19 @@ export default async function AdminServiceEditPage({
                       defaultValue={tier.price}
                       className={adminInputClass}
                     />
+                  </Field>
+                  <Field label="Satuan harga" htmlFor={`tier_${index}_unit`}>
+                    <select
+                      id={`tier_${index}_unit`}
+                      name={`tier_${index}_unit`}
+                      defaultValue={tier.unit}
+                      className={adminInputClass}
+                    >
+                      <option value="month">per bulan</option>
+                      <option value="year">per tahun</option>
+                      <option value="hour">per jam</option>
+                      <option value="once">sekali bayar</option>
+                    </select>
                   </Field>
                   <div className="flex items-end pb-1">
                     <label className="flex items-center gap-2 text-sm font-semibold text-[var(--brand-900)]">

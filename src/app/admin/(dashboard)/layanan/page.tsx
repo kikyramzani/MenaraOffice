@@ -1,7 +1,7 @@
 import Link from 'next/link'
 
 import { getStore } from '@/lib/data'
-import { formatRupiahFull } from '@/lib/format'
+import { formatRupiahFull, unitSuffixId } from '@/lib/format'
 import { Card, PageTitle, StatusBadge } from '@/components/admin/ui'
 
 export default async function AdminServicesPage() {
@@ -28,7 +28,7 @@ export default async function AdminServicesPage() {
                       className="rounded-[var(--radius-pill)] bg-[var(--brand-50)] px-3 py-1.5 text-xs font-semibold text-[var(--brand-800)]"
                     >
                       {tier.name}: {formatRupiahFull(tier.price)}
-                      {tier.unit === 'month' ? '/bln' : tier.unit === 'hour' ? '/jam' : ''}
+                      {unitSuffixId(tier.unit)}
                       {tier.isPopular ? ' ★' : ''}
                     </li>
                   ))}

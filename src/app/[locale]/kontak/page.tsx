@@ -86,10 +86,18 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
                 </span>
                 <div>
                   <p className="text-sm font-bold text-[var(--brand-900)]">{t('emailLabel')}</p>
-                  <div className="mt-1 text-sm">
+                  <div className="mt-1 flex flex-col text-sm">
                     <a href={`mailto:${settings.email}`} className="font-semibold text-[var(--brand-600)]">
                       {settings.email}
                     </a>
+                    {settings.emailSecondary ? (
+                      <a
+                        href={`mailto:${settings.emailSecondary}`}
+                        className="font-semibold text-[var(--brand-600)]"
+                      >
+                        {settings.emailSecondary}
+                      </a>
+                    ) : null}
                   </div>
                 </div>
               </li>

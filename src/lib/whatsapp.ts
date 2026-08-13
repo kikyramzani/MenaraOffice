@@ -8,4 +8,4 @@ export function waLink(number: string, message: string): string {
   return `https://wa.me/${digits}?text=${encodeURIComponent(message)}`
 }
 
-export const WA_NUMBER = process.env.NEXT_PUBLIC_WA_NUMBER ?? '6282262981118'
+export const WA_NUMBER = process.env.NEXT_PUBLIC_WA_NUMBER ?? '6287752556600'

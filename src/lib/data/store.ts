@@ -1,6 +1,7 @@
 import 'server-only'
 
 import type {
+  BlockedDate,
   Booking,
   BookingStatus,
   Database,
@@ -55,6 +56,10 @@ export interface DataStore {
   getPartners(): Promise<Partner[]>
   savePartner(partner: Partner): Promise<void>
   deletePartner(id: string): Promise<void>
+
+  getBlockedDates(): Promise<BlockedDate[]>
+  saveBlockedDate(blockedDate: BlockedDate): Promise<void>
+  deleteBlockedDate(id: string): Promise<void>
 
   getSettings(): Promise<SiteSettings>
   saveSettings(settings: SiteSettings): Promise<void>

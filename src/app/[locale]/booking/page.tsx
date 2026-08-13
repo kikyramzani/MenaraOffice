@@ -5,6 +5,8 @@ import { notFound } from 'next/navigation'
 
 import { routing } from '@/i18n/routing'
 import { getStore } from '@/lib/data'
+import { toDateBlockRules } from '@/lib/booking-calendar'
+import { todayInJakarta } from '@/lib/request-guards'
 import { SectionHeading } from '@/components/ui/SectionHeading'
 import {
   BookingWidget,
@@ -35,7 +37,19 @@ export default async function BookingPage({ params }: { params: Promise<{ locale
 
   const t = await getTranslations('booking')
   const store = getStore()
-  const [locations, rooms] = await Promise.all([store.getLocations(), store.getRooms()])
+  const [locations, rooms, settings, blockedDates] = await Promise.all([
+    store.getLocations(),
+    store.getRooms(),
+    store.getSettings(),
+    store.getBlockedDates(),
+  ])
+
+  // Shipped as props rather than fetched per month: the list is small, and the
+  // visitor can page the calendar arbitrarily far ahead or switch location,
+  // both of which would otherwise cost a round-trip each. The server guard in
+  // /api/bookings remains the correctness boundary; this is a UX hint.
+  const today = todayInJakarta()
+  const upcomingBlocks = toDateBlockRules(blockedDates).filter((entry) => entry.date >= today)
 
   const activeRooms: BookingRoom[] = rooms
     .filter((room) => room.active)
@@ -57,7 +71,12 @@ export default async function BookingPage({ params }: { params: Promise<{ locale
       <div className="container-site">
         <SectionHeading as="h1" title={t('title')} subtitle={t('subtitle')} />
         <div className="mt-12">
-          <BookingWidget locations={bookableLocations} rooms={activeRooms} />
+          <BookingWidget
+            locations={bookableLocations}
+            rooms={activeRooms}
+            blockedDates={upcomingBlocks}
+            closedWeekdays={settings.closedWeekdays}
+          />
         </div>
       </div>
     </section>

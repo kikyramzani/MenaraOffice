@@ -12,6 +12,7 @@ import {
   type NewLead,
 } from './store'
 import type {
+  BlockedDate,
   Booking,
   BookingStatus,
   Lead,
@@ -189,9 +190,36 @@ export class SupabaseStore implements DataStore {
     await deleteDoc('partners', id)
   }
 
+  async getBlockedDates(): Promise<BlockedDate[]> {
+    // Empty seed on purpose: readDocs returns its seed argument whenever the
+    // table has zero rows, so a non-empty seed would resurrect every national
+    // holiday the moment the admin deletes the last one. Supabase gets its
+    // holidays from the one-time insert in supabase/schema.sql instead; demo
+    // mode gets them from seedDatabase via LocalStore.
+    const blockedDates = await readDocs<BlockedDate>('blocked_dates', [])
+    return blockedDates.sort((a, b) => (a.date < b.date ? -1 : 1))
+  }
+
+  async saveBlockedDate(blockedDate: BlockedDate): Promise<void> {
+    await writeDoc('blocked_dates', blockedDate.id, blockedDate)
+  }
+
+  async deleteBlockedDate(id: string): Promise<void> {
+    await deleteDoc('blocked_dates', id)
+  }
+
   async getSettings(): Promise<SiteSettings> {
     const rows = await readDocs<SiteSettings>('settings', [seedDatabase.settings])
-    return rows[0] ?? seedDatabase.settings
+    const stored = rows[0] ?? seedDatabase.settings
+    // Rows written before these fields existed lack them entirely; default
+    // here so every consumer can treat them as always-present — including the
+    // admin form, which would otherwise render every weekday unchecked and
+    // then persist "nothing is closed" on the first save.
+    return {
+      ...seedDatabase.settings,
+      ...stored,
+      closedWeekdays: stored.closedWeekdays ?? seedDatabase.settings.closedWeekdays,
+    }
   }
 
   async saveSettings(settings: SiteSettings): Promise<void> {

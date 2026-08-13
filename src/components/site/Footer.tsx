@@ -118,6 +118,17 @@ export async function Footer({ locale, services, locations, settings }: Props) {
                   {settings.email}
                 </a>
               </li>
+              {settings.emailSecondary ? (
+                <li>
+                  <a
+                    href={`mailto:${settings.emailSecondary}`}
+                    className="flex items-center gap-2.5 hover:text-white"
+                  >
+                    <Icon name="mail" className="h-4 w-4 shrink-0 text-[var(--brand-300)]" />
+                    {settings.emailSecondary}
+                  </a>
+                </li>
+              ) : null}
             </ul>
             <p className="mt-5 text-xs font-semibold uppercase tracking-wider text-[var(--brand-300)]">
               {t('locations')}

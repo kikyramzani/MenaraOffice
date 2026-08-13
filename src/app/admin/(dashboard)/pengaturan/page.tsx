@@ -2,6 +2,17 @@ import { getStore } from '@/lib/data'
 import { saveSettingsAction } from '@/app/admin/actions'
 import { adminInputClass, Card, Field, PageTitle, SubmitButton } from '@/components/admin/ui'
 
+/** Monday-first to match the booking calendar's own column order. */
+const CLOSABLE_WEEKDAYS = [
+  { value: 1, label: 'Senin' },
+  { value: 2, label: 'Selasa' },
+  { value: 3, label: 'Rabu' },
+  { value: 4, label: 'Kamis' },
+  { value: 5, label: 'Jumat' },
+  { value: 6, label: 'Sabtu' },
+  { value: 0, label: 'Minggu' },
+]
+
 export default async function AdminSettingsPage() {
   const settings = await getStore().getSettings()
 
@@ -15,8 +26,17 @@ export default async function AdminSettingsPage() {
             <Field label="Nomor WhatsApp" htmlFor="waNumber" hint="Format internasional tanpa +, contoh: 6282262981118">
               <input id="waNumber" name="waNumber" defaultValue={settings.waNumber} className={adminInputClass} />
             </Field>
-            <Field label="Email" htmlFor="email">
+            <Field label="Email utama" htmlFor="email" hint="Juga jadi tujuan notifikasi leads & booking">
               <input id="email" name="email" type="email" defaultValue={settings.email} className={adminInputClass} />
+            </Field>
+            <Field label="Email sekunder" htmlFor="emailSecondary" hint="Ikut tampil di footer & halaman kontak">
+              <input
+                id="emailSecondary"
+                name="emailSecondary"
+                type="email"
+                defaultValue={settings.emailSecondary}
+                className={adminInputClass}
+              />
             </Field>
             <Field label="Instagram" htmlFor="instagram">
               <input id="instagram" name="instagram" defaultValue={settings.instagram} className={adminInputClass} />
@@ -51,6 +71,27 @@ export default async function AdminSettingsPage() {
               />
             </Field>
           </div>
+          <fieldset className="mt-4">
+            <legend className="mb-1.5 block text-sm font-semibold text-[var(--brand-900)]">Hari tutup</legend>
+            <div className="flex flex-wrap gap-x-5 gap-y-2">
+              {CLOSABLE_WEEKDAYS.map((day) => (
+                <label key={day.value} className="flex items-center gap-2 text-sm text-[var(--brand-900)]">
+                  <input
+                    type="checkbox"
+                    name="closedWeekdays"
+                    value={day.value}
+                    defaultChecked={settings.closedWeekdays.includes(day.value)}
+                    className="h-4 w-4"
+                  />
+                  {day.label}
+                </label>
+              ))}
+            </div>
+            <p className="mt-1 text-xs text-[var(--color-text-muted)]">
+              Tanggal pada hari yang dicentang tidak bisa dibooking sama sekali.
+            </p>
+          </fieldset>
+
           <div className="mt-6">
             <SubmitButton>Simpan Pengaturan</SubmitButton>
           </div>
