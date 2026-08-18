@@ -55,8 +55,8 @@ export async function Hero() {
           <div className="relative mx-auto w-full max-w-lg lg:max-w-none">
             <div className="relative aspect-[4/3] overflow-hidden rounded-[var(--radius-lg)] shadow-[var(--shadow-lift)]">
               <Image
-                src="/images/locations/menara-karya.webp"
-                alt="Menara Karya Tower, lokasi Menara Office di Kuningan, Jakarta Selatan"
+                src="/images/home/hero.webp"
+                alt="Resepsionis Menara Office di Menara Karya Tower, Kuningan, Jakarta Selatan"
                 fill
                 priority
                 fetchPriority="high"

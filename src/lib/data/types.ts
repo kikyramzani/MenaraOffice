@@ -35,6 +35,8 @@ export type OfficeLocation = {
   city: string
   address: string
   photo: string
+  /** Extra branch photos shown as a gallery below the hero; empty hides the section. */
+  gallery: string[]
   gmapsQuery: string
   facilities: L10n[]
   /** Serviced Office room sizes (pax) available at this location; empty when not offered here. */

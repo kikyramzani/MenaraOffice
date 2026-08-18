@@ -55,6 +55,14 @@ function parseFeatureLines(raw: string): L10n[] {
     })
 }
 
+/** One path or URL per line — used for the location photo gallery. */
+function parsePathLines(raw: string): string[] {
+  return raw
+    .split('\n')
+    .map((line) => line.trim())
+    .filter(Boolean)
+}
+
 /** Comma-separated whole numbers, e.g. "2, 3, 4" — used for pax-capacity lists. */
 function parseNumberList(raw: string): number[] {
   return raw
@@ -174,6 +182,7 @@ export async function saveLocationAction(formData: FormData): Promise<void> {
     city: text(formData, 'city') || existing.city,
     address: text(formData, 'address') || existing.address,
     photo: text(formData, 'photo') || existing.photo,
+    gallery: parsePathLines(text(formData, 'gallery')),
     gmapsQuery: text(formData, 'gmapsQuery') || existing.gmapsQuery,
     facilities: parseFeatureLines(text(formData, 'facilities')),
     servicedOfficeCapacities: parseNumberList(text(formData, 'servicedOfficeCapacities')),
@@ -228,7 +237,7 @@ export async function savePostAction(formData: FormData): Promise<void> {
     title: l10n(formData, 'title'),
     excerpt: l10n(formData, 'excerpt'),
     content: l10n(formData, 'content'),
-    cover: text(formData, 'cover') || existing?.cover || '/images/locations/menara-karya.webp',
+    cover: text(formData, 'cover') || existing?.cover || '/images/home/hero.webp',
     status: text(formData, 'status') === 'published' ? 'published' : 'draft',
     publishedAt: text(formData, 'publishedAt') || existing?.publishedAt || new Date().toISOString().slice(0, 10),
     createdAt: existing?.createdAt ?? new Date().toISOString().slice(0, 10),

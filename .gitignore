@@ -31,3 +31,7 @@ screenshots/
 # misc
 .DS_Store
 .env*
+
+# downloaded drive originals (large, regenerable via npm run fetch:drive)
+assets/drive/
+assets/contact-sheets/

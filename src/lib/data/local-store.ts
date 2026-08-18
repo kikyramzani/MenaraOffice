@@ -86,6 +86,7 @@ async function loadDb(): Promise<Database> {
         locations: parsed.locations.map((location) => ({
           ...location,
           servicedOfficeCapacities: location.servicedOfficeCapacities ?? [],
+          gallery: location.gallery ?? [],
         })),
       }
     } else {

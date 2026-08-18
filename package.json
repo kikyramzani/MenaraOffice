@@ -10,6 +10,8 @@
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "scrape:assets": "node scripts/scrape-assets.mjs",
+    "fetch:drive": "node scripts/fetch-drive-assets.mjs",
+    "build:photos": "node scripts/build-site-photos.mjs",
     "test:e2e": "playwright test"
   },
   "dependencies": {

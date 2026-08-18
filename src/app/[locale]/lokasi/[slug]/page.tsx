@@ -10,6 +10,7 @@ import { getStore } from '@/lib/data'
 import { pickL10n } from '@/lib/format'
 import { Icon } from '@/components/ui/Icon'
 import { RevealOnScroll } from '@/components/ui/RevealOnScroll'
+import { LocationGallery } from '@/components/locations/LocationGallery'
 
 export const dynamic = 'force-dynamic'
 
@@ -113,6 +114,8 @@ export default async function LocationDetailPage({ params }: { params: Promise<P
           </RevealOnScroll>
         </div>
       </section>
+
+      <LocationGallery images={location.gallery} locationName={location.name} />
 
       <section className="section pt-6" aria-label="Peta lokasi">
         <div className="container-site">

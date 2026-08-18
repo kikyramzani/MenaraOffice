@@ -136,7 +136,11 @@ export class SupabaseStore implements DataStore {
 
   async getLocations(): Promise<OfficeLocation[]> {
     const locations = await readDocs<OfficeLocation>('locations', seedDatabase.locations)
-    return locations.sort((a, b) => a.order - b.order)
+    // Rows written before `gallery` existed have no such key; without the
+    // default the gallery component would map over undefined.
+    return locations
+      .map((location) => ({ ...location, gallery: location.gallery ?? [] }))
+      .sort((a, b) => a.order - b.order)
   }
 
   async saveLocation(location: OfficeLocation): Promise<void> {

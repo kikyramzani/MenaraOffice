@@ -43,6 +43,21 @@ export default async function AdminLocationEditPage({
             </Field>
           </div>
           <div className="mt-4">
+            <Field
+              label="Galeri foto"
+              htmlFor="gallery"
+              hint="Satu path per baris, contoh: /images/locations/epiwalk-01.webp — kosongkan untuk menyembunyikan galeri"
+            >
+              <textarea
+                id="gallery"
+                name="gallery"
+                rows={6}
+                defaultValue={location.gallery.join('\n')}
+                className={adminInputClass}
+              />
+            </Field>
+          </div>
+          <div className="mt-4">
             <Field label="Fasilitas" htmlFor="facilities" hint="Satu fasilitas per baris: Indonesia | English">
               <textarea
                 id="facilities"

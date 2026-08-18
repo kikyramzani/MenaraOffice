@@ -49,7 +49,13 @@
     "facilities": "Facilities",
     "viewMap": "View on Map",
     "bookHere": "Book a meeting room here",
-    "otherLocations": "Other locations"
+    "otherLocations": "Other locations",
+    "gallery": "Photo Gallery",
+    "galleryOpen": "Open photo {index} of {total}",
+    "galleryCounter": "Photo {index} of {total}",
+    "galleryClose": "Close gallery",
+    "galleryPrev": "Previous photo",
+    "galleryNext": "Next photo"
   },
   "booking": {
     "title": "Book a Meeting Room",

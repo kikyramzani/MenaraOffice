@@ -57,7 +57,7 @@ export async function generateMetadata({
       siteName: 'Menara Office',
       type: 'website',
       locale: locale === 'id' ? 'id_ID' : 'en_US',
-      images: ['/images/locations/menara-karya.webp'],
+      images: ['/images/home/hero.webp'],
     },
     icons: {
       icon: [{ url: '/images/logo.png', type: 'image/png' }],
