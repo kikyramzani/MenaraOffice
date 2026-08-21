@@ -32,10 +32,7 @@ export const promos: Promo[] = [
       'Diskon 50% Virtual Office untuk merayakan kemerdekaan Republik Indonesia.',
       'Fifty percent off Virtual Office to celebrate Indonesian Independence Day.',
     ),
-    // Posternya belum ada di repo. Simpan filenya sebagai
-    // `public/images/promo/promo-merdeka.jpg` lalu aktifkan baris di bawah —
-    // menunjuk ke file yang tidak ada hanya menghasilkan gambar rusak.
-    // poster: '/images/promo/promo-merdeka.jpg',
+    poster: '/images/promo/promo-merdeka.webp',
     discountLabel: '50%',
     priceBefore: 4_000_000,
     priceAfter: 2_000_000,

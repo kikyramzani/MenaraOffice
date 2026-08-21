@@ -34,26 +34,30 @@ export async function PromoCard({ promo, locale, waNumber }: Props) {
     <article
       className={clsx(
         'grid overflow-hidden rounded-[var(--radius-lg)] border border-[var(--accent-100)] bg-white shadow-[var(--shadow-lift)]',
-        promo.poster && 'md:grid-cols-[minmax(0,0.85fr)_minmax(0,1fr)]',
+        promo.poster && 'md:grid-cols-[minmax(0,0.8fr)_minmax(0,1fr)] md:items-center',
       )}
     >
       {promo.poster ? (
-        <div className="relative aspect-[4/5] w-full bg-[var(--brand-950)] md:aspect-auto md:min-h-full">
-          <Image
-            src={promo.poster}
-            alt={title}
-            fill
-            sizes="(max-width: 768px) 100vw, 40vw"
-            className="object-cover"
-          />
-        </div>
+        // Dirender pada rasio aslinya, bukan `fill` + object-cover: memotong
+        // poster berarti memotong logo atau tanggal berlakunya.
+        <Image
+          src={promo.poster}
+          alt={title}
+          width={1080}
+          height={1350}
+          sizes="(max-width: 768px) 100vw, 40vw"
+          className="h-auto w-full"
+        />
       ) : null}
 
       <div className="relative p-7 md:p-10">
-        {/* Pita diskon dibiarkan menembus tepi kartu supaya ada lapisan. */}
-        <span className="absolute right-0 top-7 rounded-l-[var(--radius-pill)] bg-[var(--accent-500)] px-5 py-1.5 text-sm font-extrabold uppercase tracking-wider text-[var(--brand-950)]">
-          {t('discountBadge', { value: promo.discountLabel })}
-        </span>
+        {/* Poster sudah memuat stempel diskonnya sendiri; menampilkan pita
+            kedua tepat di sebelahnya hanya jadi pengulangan. */}
+        {promo.poster ? null : (
+          <span className="absolute right-0 top-7 rounded-l-[var(--radius-pill)] bg-[var(--accent-500)] px-5 py-1.5 text-sm font-extrabold uppercase tracking-wider text-[var(--brand-950)]">
+            {t('discountBadge', { value: promo.discountLabel })}
+          </span>
+        )}
 
         <h3 className="max-w-[16ch] text-3xl font-extrabold tracking-tight text-[var(--brand-900)] md:text-4xl">
           {title}
