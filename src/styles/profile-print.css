@@ -1,0 +1,172 @@
+/*
+ * Print sheet for the company-profile document.
+ *
+ * The public site is fluid: its type scale uses clamp() with vw units, which
+ * would resolve against Chromium's paper viewport and drift between a screen
+ * preview and the rendered PDF. Everything here is therefore locked to fixed
+ * lengths so a page looks identical in the browser and in the exported file.
+ */
+
+@page {
+  size: A4 portrait;
+  margin: 0;
+}
+
+.profile-root {
+  /* A4 is 210 x 297 mm; 16 mm gutters leave a 178 mm text block. */
+  --page-w: 210mm;
+  --page-h: 297mm;
+  --page-pad: 16mm;
+
+  /* Fixed type scale — no clamp(), no vw. */
+  --pt-micro: 7.5pt;
+  --pt-xs: 8.5pt;
+  --pt-sm: 9.5pt;
+  --pt-body: 10.5pt;
+  --pt-lead: 12pt;
+  --pt-h3: 13pt;
+  --pt-h2: 19pt;
+  --pt-h1: 30pt;
+  --pt-display: 42pt;
+
+  background: #64748b;
+  font-size: var(--pt-body);
+  line-height: 1.55;
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+
+/* One sheet of paper. */
+.print-page {
+  position: relative;
+  box-sizing: border-box;
+  width: var(--page-w);
+  height: var(--page-h);
+  margin-inline: auto;
+  overflow: hidden;
+  background: var(--color-surface);
+  break-after: page;
+  page-break-after: always;
+}
+
+/*
+ * Without this the document ends on an empty sheet: the final page's forced
+ * break creates one more page in the PDF.
+ */
+.print-page:last-child {
+  break-after: auto;
+  page-break-after: auto;
+}
+
+/* Screen-only affordance so the page stack is readable while proofing. */
+@media screen {
+  .print-page {
+    margin-block: 8mm;
+    box-shadow: 0 10px 30px rgb(15 23 42 / 0.35);
+  }
+}
+
+.page-body {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: var(--page-pad);
+  padding-bottom: 22mm;
+}
+
+/* Running footer, pinned inside the bottom gutter of every numbered page. */
+.page-foot {
+  position: absolute;
+  inset-inline: var(--page-pad);
+  bottom: 10mm;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 3mm;
+  border-top: 0.4mm solid var(--color-border);
+  font-size: var(--pt-micro);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.page-foot__num {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  color: var(--brand-800);
+}
+
+/* Section label above a heading. */
+.eyebrow {
+  font-size: var(--pt-xs);
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--brand-500);
+}
+
+.page-title {
+  margin-top: 2mm;
+  font-size: var(--pt-h2);
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.015em;
+  color: var(--brand-900);
+}
+
+.page-lead {
+  margin-top: 3mm;
+  font-size: var(--pt-lead);
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
+
+/* Short accent rule that separates a heading block from the body. */
+.rule-accent {
+  width: 18mm;
+  height: 1.2mm;
+  margin-top: 4mm;
+  border-radius: 999px;
+  background: var(--accent-500);
+}
+
+.surface-soft {
+  background: var(--color-surface-alt);
+  border: 0.3mm solid var(--color-border);
+  border-radius: 3mm;
+}
+
+/* Amber "mulai dari" chip used on every service page. */
+.price-chip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 1.5mm;
+  padding: 2mm 4mm;
+  border-radius: 999px;
+  background: var(--accent-100);
+  color: #7c4a03;
+  font-weight: 700;
+}
+
+.print-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/*
+ * Screen-only motion primitives from global.css would leave reveal elements at
+ * opacity 0 in the PDF, and marquee/hover states mean nothing on paper.
+ */
+.profile-root .reveal {
+  opacity: 1;
+  transform: none;
+  transition: none;
+}
+
+.profile-root * {
+  animation: none !important;
+  transition: none !important;
+}

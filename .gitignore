@@ -35,3 +35,7 @@ screenshots/
 # downloaded drive originals (large, regenerable via npm run fetch:drive)
 assets/drive/
 assets/contact-sheets/
+
+# print derivatives + rendered profile (regenerable via npm run profile:pdf)
+public/images/print/
+assets/company-profile/

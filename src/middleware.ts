@@ -5,6 +5,7 @@ export default createMiddleware(routing)
 
 export const config = {
   // Everything except Next internals, the API surface, the admin panel
-  // (single-language, session-gated) and files with an extension.
-  matcher: ['/((?!api|admin|_next|_vercel|.*\\..*).*)'],
+  // (single-language, session-gated), the printable company profile
+  // (single-language, rendered to PDF) and files with an extension.
+  matcher: ['/((?!api|admin|company-profile|_next|_vercel|.*\\..*).*)'],
 }

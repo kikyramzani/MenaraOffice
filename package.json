@@ -12,6 +12,8 @@
     "scrape:assets": "node scripts/scrape-assets.mjs",
     "fetch:drive": "node scripts/fetch-drive-assets.mjs",
     "build:photos": "node scripts/build-site-photos.mjs",
+    "profile:photos": "node scripts/build-profile-photos.mjs",
+    "profile:pdf": "npm run profile:photos && node scripts/build-company-profile.mjs",
     "test:e2e": "playwright test"
   },
   "dependencies": {

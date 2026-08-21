@@ -30,6 +30,27 @@ Panel admin: `http://localhost:3000/admin`
 | `npm run typecheck` | TypeScript check |
 | `npm run test:e2e` | Seluruh suite Playwright (build dulu) |
 | `npm run scrape:assets` | Tarik ulang aset foto dari menaraoffice.id |
+| `npm run profile:pdf` | Render company profile PDF (A4 portrait, server harus jalan) |
+
+## Company Profile PDF
+
+Dokumen company profile bukan file yang disusun manual: isinya halaman cetak di
+`/company-profile` yang membaca data live dari `getStore()`, lalu dirender ke PDF
+oleh Playwright. Jadi setiap kali layanan, harga, lokasi, atau kontak berubah di
+admin, cukup generate ulang — dokumennya ikut ter-update.
+
+```bash
+npm run build && npm start   # server harus sudah jalan
+npm run profile:pdf          # → assets/company-profile/Menara-Office-Company-Profile-ID.pdf
+```
+
+Perintah itu juga membuat turunan JPEG di `public/images/print/` lebih dulu, karena
+Chromium tidak bisa menyalin WebP ke PDF dan akan me-render ulang tanpa kompresi
+(46 MB vs 3 MB). Keduanya di-gitignore dan selalu bisa dibuat ulang.
+
+Kalau server sudah jalan sebelum turunan foto dibuat, `next start` tidak akan
+melayani file barunya — script akan berhenti dengan pesan jelas; restart server
+lalu ulangi.
 
 ## Mode Demo vs Supabase
 
