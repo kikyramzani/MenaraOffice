@@ -1,16 +1,21 @@
 'use client'
 
 import { useTranslations } from 'next-intl'
-import { waLink, WA_NUMBER } from '@/lib/whatsapp'
+import { waLink } from '@/lib/whatsapp'
 import { Icon } from '@/components/ui/Icon'
 
+type Props = {
+  /** Admin 1 — the general-enquiry inbox. */
+  waNumber: string
+}
+
 /** Floating WhatsApp bubble — replaces the legacy site's "Speak to us" widget. */
-export function WhatsAppFloat() {
+export function WhatsAppFloat({ waNumber }: Props) {
   const t = useTranslations('wa')
 
   return (
     <a
-      href={waLink(WA_NUMBER, t('defaultMessage'))}
+      href={waLink(waNumber, t('defaultMessage'))}
       target="_blank"
       rel="noopener noreferrer"
       aria-label={t('float')}

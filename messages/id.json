@@ -8,11 +8,12 @@
     "contact": "Hubungi Kami",
     "bookRoom": "Booking Ruang Rapat",
     "menu": "Menu",
-    "closeMenu": "Tutup menu"
+    "closeMenu": "Tutup menu",
+    "promo": "Promo"
   },
   "hero": {
     "eyebrow": "Virtual Office · Serviced Office · Meeting Room",
-    "title": "Kantor profesional untuk bisnis Anda, mulai hari ini",
+    "title": "Solusi kantor lengkap untuk bisnis Anda",
     "subtitle": "Alamat bergengsi di Jakarta, Bekasi, dan Bandung, lengkap dengan legalitas PT, ruang rapat, dan tim resepsionis yang siap mendukung usaha Anda berkembang.",
     "ctaPrimary": "Lihat Paket Harga",
     "ctaSecondary": "Konsultasi Gratis",
@@ -39,7 +40,11 @@
     "askWhatsApp": "Tanya via WhatsApp",
     "meetingRoomCapacityHeading": "Ruang Rapat Tersedia per Lokasi",
     "servicedOfficeCapacityHeading": "Kapasitas Tersedia per Lokasi",
-    "capacityPax": "{count} pax"
+    "capacityPax": "{count} pax",
+    "onRequest": "Hubungi Kami",
+    "consultWhatsApp": "Konsultasi via WhatsApp",
+    "customQuoteTitle": "Biaya menyesuaikan kebutuhan Anda",
+    "customQuoteBody": "Setiap kasus punya lingkup dan dokumen yang berbeda, jadi kami menghitungnya setelah konsultasi. Ceritakan kebutuhan Anda dan tim kami memberikan estimasinya."
   },
   "locations": {
     "eyebrow": "Lokasi Kami",
@@ -120,7 +125,9 @@
     "errMessage": "Pesan minimal 5 karakter",
     "office": "Kantor Pusat",
     "emailLabel": "Email",
-    "waLabel": "WhatsApp"
+    "waLabel": "WhatsApp",
+    "admin1": "(Admin 1)",
+    "admin2": "(Admin 2)"
   },
   "about": {
     "eyebrow": "Tentang Kami",
@@ -150,6 +157,19 @@
   },
   "partners": {
     "title": "Our Partner"
+  },
+  "promo": {
+    "eyebrow": "Promo Spesial",
+    "title": "Penawaran yang sedang berjalan",
+    "subtitle": "Hemat lebih banyak selama periode promo. Syarat dan ketentuan berlaku.",
+    "benefitsTitle": "Benefit",
+    "validUntil": "Berlaku sampai {date}",
+    "cta": "Ambil Promo Ini",
+    "viewAll": "Lihat Semua Promo",
+    "metaTitle": "Promo",
+    "empty": "Belum ada promo yang berjalan saat ini.",
+    "discountBadge": "Diskon {value}",
+    "priceBefore": "Harga normal"
   },
   "faq": {
     "eyebrow": "FAQ",
@@ -182,7 +202,9 @@
     "newsletter": "Dapatkan tips bisnis terbaru",
     "newsletterPlaceholder": "Alamat email Anda",
     "newsletterButton": "Berlangganan",
-    "newsletterSuccess": "Terima kasih! Anda sudah terdaftar."
+    "newsletterSuccess": "Terima kasih! Anda sudah terdaftar.",
+    "admin1": "(Admin 1)",
+    "admin2": "(Admin 2)"
   },
   "wa": {
     "float": "Chat dengan kami",

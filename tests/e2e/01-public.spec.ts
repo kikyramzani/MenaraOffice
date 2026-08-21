@@ -4,9 +4,10 @@ import { gotoHydrated } from './helpers'
 test.describe('Halaman publik', () => {
   test('beranda memuat hero, harga baru, dan navigasi', async ({ page }) => {
     await page.goto('/id')
-    await expect(page.locator('h1')).toBeVisible()
-    // Harga revisi: Virtual Office start from Rp 4 Juta di kartu hero.
+    await expect(page.locator('h1')).toContainText('Solusi kantor lengkap untuk bisnis Anda')
+    // Harga revisi: Virtual Office start from Rp 4 Juta di kartu hero, tarif tahunan.
     await expect(page.getByText('Rp 4 Juta').first()).toBeVisible()
+    await expect(page.locator('section[aria-labelledby="hero-heading"]').getByText('/thn')).toBeVisible()
     await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible()
   })
 
@@ -44,34 +45,62 @@ test.describe('Halaman publik', () => {
     await expect(page.locator('#pricing')).toContainText('Basic')
     await expect(page.locator('#pricing')).toContainText('6 Juta')
     await expect(page.locator('#pricing')).toContainText('Business')
-    await expect(page.locator('#pricing')).toContainText('Meeting Room Semua Cabang')
+    await expect(page.locator('#pricing')).toContainText('Free meeting room 120 jam/tahun')
     // Harga VO adalah tarif tahunan, bukan bulanan.
-    await expect(page.locator('#pricing').getByText('/tahun')).toHaveCount(2)
-    await expect(page.locator('#pricing').getByText('/bulan')).toHaveCount(0)
+    await expect(page.locator('#pricing').getByText('/tahun', { exact: true })).toHaveCount(2)
+    await expect(page.locator('#pricing').getByText('/bulan', { exact: true })).toHaveCount(0)
     await expect(page.locator('#pricing').getByRole('link', { name: 'Pilih Paket' })).toHaveCount(2)
   })
 
-  test('halaman pendirian menampilkan paket PT/CV/Firma/Yayasan 6 Juta', async ({ page }) => {
+  test('halaman pendirian: PT/CV/Firma 6 Juta plus Yayasan tanpa harga', async ({ page }) => {
     await page.goto('/id/pendirian-pt')
-    await expect(page.locator('#pricing')).toContainText('6 Juta')
-    await expect(page.locator('#pricing')).toContainText('PT/CV/Firma/Yayasan')
-    await expect(page.locator('#pricing')).toContainText('Start From')
-    await expect(page.locator('#pricing').getByRole('link', { name: 'Pilih Paket' })).toHaveCount(1)
+    const pricing = page.locator('#pricing')
+    await expect(pricing).toContainText('6 Juta')
+    await expect(pricing).toContainText('PT/CV/Firma')
+    await expect(pricing).toContainText('Start From')
+    await expect(pricing.getByRole('link', { name: 'Pilih Paket' })).toHaveCount(1)
+
+    // Yayasan dihitung per kasus: tidak ada angka, tombolnya mengajak konsultasi.
+    await expect(pricing).toContainText('Yayasan')
+    await expect(pricing).toContainText('Konsultasi Dahulu')
+    await expect(pricing).toContainText('Hubungi Kami')
+    await expect(pricing.getByRole('link', { name: 'Konsultasi via WhatsApp' })).toHaveCount(1)
   })
 
-  test('halaman serviced office menampilkan harga 4 Juta dan kapasitas per lokasi', async ({ page }) => {
+  test('halaman legal consultant tidak punya kartu harga, hanya ajakan konsultasi', async ({ page }) => {
+    await page.goto('/id/legal-consultant')
+    const pricing = page.locator('#pricing')
+    await expect(pricing).toContainText('Biaya menyesuaikan kebutuhan Anda')
+    await expect(pricing.getByRole('link', { name: 'Konsultasi via WhatsApp' })).toHaveCount(1)
+    await expect(pricing.getByRole('link', { name: 'Pilih Paket' })).toHaveCount(0)
+  })
+
+  test('halaman serviced office menampilkan 3 tier per pax dan kapasitas per lokasi', async ({ page }) => {
     await page.goto('/id/serviced-office')
-    await expect(page.locator('#pricing')).toContainText('4 Juta')
+    const pricing = page.locator('#pricing')
+    // 2 pax 4 jt, 3 pax 5 jt, 4 pax 6 jt — semuanya bulanan.
+    await expect(pricing).toContainText('2 Pax')
+    await expect(pricing).toContainText('3 Pax')
+    await expect(pricing).toContainText('4 Pax')
+    await expect(pricing).toContainText('4 Juta')
+    await expect(pricing).toContainText('5 Juta')
+    await expect(pricing).toContainText('6 Juta')
+    await expect(pricing.getByText('/bulan', { exact: true })).toHaveCount(3)
+    await expect(pricing.getByRole('link', { name: 'Pilih Paket' })).toHaveCount(3)
+    // Bonus yang dijanjikan di tiap tier.
+    await expect(pricing).toContainText('Free meeting room 12 jam/bulan')
+    await expect(pricing).toContainText('Free pantry')
 
     const capacity = page.locator('section[aria-labelledby="capacity-heading"]')
     await expect(capacity.getByText('Kapasitas Tersedia per Lokasi')).toBeVisible()
-    // Menara Karya: 2, 3, 4 pax — Epiwalk & Pejaten: 4 pax — Bekasi: 3 & 4 pax.
+    // Menara Karya & Cempaka Mas: 2, 3, 4 pax — Epiwalk & Pejaten: 4 pax — Bekasi: 3 & 4 pax.
     const menaraKarya = capacity.locator('div', { hasText: 'Menara Karya Tower' }).last()
     await expect(menaraKarya.getByText('2 pax')).toBeVisible()
     await expect(menaraKarya.getByText('3 pax')).toBeVisible()
     await expect(menaraKarya.getByText('4 pax')).toBeVisible()
-    // Cempaka Mas & Bandung have no serviced-office capacity data, so they must not appear here.
-    await expect(capacity.getByText('Ruko Mega Grosir Cempaka Mas')).toHaveCount(0)
+    const cempaka = capacity.locator('div', { hasText: 'Ruko Mega Grosir Cempaka Mas' }).last()
+    await expect(cempaka.getByText('2 pax')).toBeVisible()
+    await expect(cempaka.getByText('4 pax')).toBeVisible()
   })
 
   test('halaman meeting room hanya 1 paket 150rb/jam, link booking, dan kapasitas per lokasi', async ({ page }) => {
@@ -82,10 +111,10 @@ test.describe('Halaman publik', () => {
 
     const capacity = page.locator('section[aria-labelledby="capacity-heading"]')
     await expect(capacity.getByText('Ruang Rapat Tersedia per Lokasi')).toBeVisible()
-    // 6 pax: Menara Karya, Epiwalk, Cempaka Mas — 8 pax: Pejaten (Wisma Perkasa), Bekasi.
+    // 6 pax: Menara Karya — 5 pax: Epiwalk — 8 pax: Cempaka Mas, Pejaten (Wisma Perkasa), Bekasi.
     await expect(capacity.locator('div', { hasText: 'Menara Karya Tower' }).last().getByText('6 pax')).toBeVisible()
-    await expect(capacity.locator('div', { hasText: 'Epiwalk Rasuna Epicentrum' }).last().getByText('6 pax')).toBeVisible()
-    await expect(capacity.locator('div', { hasText: 'Ruko Mega Grosir Cempaka Mas' }).last().getByText('6 pax')).toBeVisible()
+    await expect(capacity.locator('div', { hasText: 'Epiwalk Rasuna Epicentrum' }).last().getByText('5 pax')).toBeVisible()
+    await expect(capacity.locator('div', { hasText: 'Ruko Mega Grosir Cempaka Mas' }).last().getByText('8 pax')).toBeVisible()
     await expect(capacity.locator('div', { hasText: 'Wisma Perkasa' }).last().getByText('8 pax')).toBeVisible()
     await expect(capacity.locator('div', { hasText: 'Ruko Celebration Boulevard' }).last().getByText('8 pax')).toBeVisible()
   })
@@ -94,7 +123,7 @@ test.describe('Halaman publik', () => {
     await gotoHydrated(page, '/id')
     await page.getByRole('button', { name: 'English' }).click()
     await expect(page).toHaveURL(/\/en$/)
-    await expect(page.locator('h1')).toContainText('professional office')
+    await expect(page.locator('h1')).toContainText('Complete office solutions')
   })
 
   test('halaman lokasi menampilkan 6 lokasi', async ({ page }) => {
@@ -150,22 +179,84 @@ test.describe('Halaman publik', () => {
     await expect(page.getByText('Terima kasih! Anda sudah terdaftar.')).toBeVisible()
   })
 
-  test('footer menampilkan kedua alamat email resmi', async ({ page }) => {
+  test('footer hanya menampilkan email publik, bukan kotak masuk internal', async ({ page }) => {
     await page.goto('/id')
     const footer = page.locator('footer')
-    await expect(footer.getByRole('link', { name: 'menaraoffice.id@gmail.com' })).toBeVisible()
     await expect(footer.getByRole('link', { name: 'marketing@menaraoffice.id' })).toBeVisible()
+    // Gmail adalah alamat notifikasi internal dan tidak boleh bocor ke publik.
+    await expect(footer.getByText('menaraoffice.id@gmail.com')).toHaveCount(0)
     await expect(footer.getByText('info@menaraoffice.id')).toHaveCount(0)
   })
 
-  test('nomor WhatsApp baru dipakai di seluruh website', async ({ page }) => {
+  test('chat umum memakai Admin 1, footer memuat kedua nomor berlabel', async ({ page }) => {
     await page.goto('/id')
-    const waLinks = page.locator('a[href*="wa.me"]')
-    const count = await waLinks.count()
+
+    // Di luar footer, setiap tautan WhatsApp harus mengarah ke Admin 1.
+    const outsideFooter = page.locator('a[href*="wa.me"]:not(footer a)')
+    const count = await outsideFooter.count()
     expect(count).toBeGreaterThan(0)
     for (let index = 0; index < count; index += 1) {
-      const href = await waLinks.nth(index).getAttribute('href')
-      expect(href).toContain('wa.me/6287752556600')
+      const href = await outsideFooter.nth(index).getAttribute('href')
+      expect(href).toContain('wa.me/6282262981118')
     }
+
+    const footer = page.locator('footer')
+    await expect(footer.locator('a[href*="wa.me/6282262981118"]')).toHaveCount(1)
+    await expect(footer.locator('a[href*="wa.me/6287752556600"]')).toHaveCount(1)
+    await expect(footer).toContainText('(Admin 1)')
+    await expect(footer).toContainText('(Admin 2)')
+  })
+
+  test('halaman kontak menampilkan dua nomor dan satu email publik', async ({ page }) => {
+    await page.goto('/id/kontak')
+    const main = page.locator('section').first()
+    await expect(main).toContainText('+6282262981118')
+    await expect(main).toContainText('+6287752556600')
+    await expect(main).toContainText('marketing@menaraoffice.id')
+    await expect(main.getByText('menaraoffice.id@gmail.com')).toHaveCount(0)
+  })
+
+  test('menu Promo tampil di header desktop dan drawer mobile', async ({ page }) => {
+    await gotoHydrated(page, '/id')
+    const desktopNav = page.getByRole('navigation', { name: 'Main navigation' })
+    await expect(desktopNav.getByRole('link', { name: 'Promo' })).toHaveAttribute('href', '/id/promo')
+
+    await page.setViewportSize({ width: 390, height: 844 })
+    await page.getByRole('button', { name: 'Menu' }).click()
+    const mobileNav = page.getByRole('navigation', { name: 'Mobile navigation' })
+    await expect(mobileNav.getByRole('link', { name: 'Promo' })).toHaveAttribute('href', '/id/promo')
+  })
+
+  test('beranda menampilkan promo merdeka di antara hero dan partner', async ({ page }) => {
+    await page.goto('/id')
+    const promo = page.locator('section[aria-labelledby="promo-heading"]')
+    await expect(promo).toBeVisible()
+    await expect(promo).toContainText('Promo Merdeka')
+    await expect(promo).toContainText('Diskon 50%')
+    await expect(promo).toContainText('Rp 2.000.000')
+    await expect(promo.getByText('Rp 4.000.000')).toBeVisible()
+    await expect(promo).toContainText('31 Agustus 2026')
+
+    // Urutan DOM: hero → promo → partner.
+    const order = await page.evaluate(() => {
+      const sections = Array.from(document.querySelectorAll('section'))
+      const labelled = (id: string) => sections.findIndex((s) => s.getAttribute('aria-labelledby') === id)
+      return { hero: labelled('hero-heading'), promo: labelled('promo-heading'), partners: labelled('partners-heading') }
+    })
+    expect(order.hero).toBeLessThan(order.promo)
+    expect(order.promo).toBeLessThan(order.partners)
+  })
+
+  test('halaman promo merender kartu promo merdeka', async ({ page }) => {
+    await page.goto('/id/promo')
+    await expect(page.locator('h1')).toContainText('Penawaran yang sedang berjalan')
+    const card = page.locator('article').first()
+    await expect(card).toContainText('Promo Merdeka')
+    await expect(card).toContainText('Rp 2.000.000')
+    await expect(card).toContainText('Zonasi perkantoran resmi')
+    await expect(card.getByRole('link', { name: 'Ambil Promo Ini' })).toHaveAttribute(
+      'href',
+      /wa\.me\/6282262981118/,
+    )
   })
 })

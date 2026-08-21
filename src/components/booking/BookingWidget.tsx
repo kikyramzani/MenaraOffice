@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react
 import { useLocale, useTranslations } from 'next-intl'
 import { bookingSchema } from '@/lib/schemas'
 import { formatRupiahFull, formatHour } from '@/lib/format'
-import { waLink, WA_NUMBER } from '@/lib/whatsapp'
+import { waLink } from '@/lib/whatsapp'
 import { clsx } from '@/lib/clsx'
 import {
   findDateBlock,
@@ -33,6 +33,8 @@ type Props = {
   rooms: BookingRoom[]
   blockedDates: DateBlockRule[]
   closedWeekdays: number[]
+  /** Admin 2 — booking enquiries go to a separate inbox from general chat. */
+  waNumberBooking: string
 }
 
 type Availability = {
@@ -55,7 +57,13 @@ function toIso(date: Date): string {
 const inputClass =
   'w-full rounded-[var(--radius-md)] border border-[var(--color-border)] bg-white px-4 py-3 text-sm text-[var(--color-text)] focus:border-[var(--brand-500)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-200)]'
 
-export function BookingWidget({ locations, rooms, blockedDates, closedWeekdays }: Props) {
+export function BookingWidget({
+  locations,
+  rooms,
+  blockedDates,
+  closedWeekdays,
+  waNumberBooking,
+}: Props) {
   const t = useTranslations('booking')
   const locale = useLocale()
 
@@ -283,7 +291,7 @@ export function BookingWidget({ locations, rooms, blockedDates, closedWeekdays }
         <p className="mt-3 text-sm leading-relaxed text-[var(--color-text-muted)]">{t('successBody')}</p>
         <div className="mt-7 flex flex-wrap items-center justify-center gap-4">
           <a
-            href={waLink(WA_NUMBER, summary)}
+            href={waLink(waNumberBooking, summary)}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 rounded-[var(--radius-pill)] bg-[var(--wa-600)] px-6 py-3 text-sm font-semibold text-white hover:bg-[var(--wa-700)]"

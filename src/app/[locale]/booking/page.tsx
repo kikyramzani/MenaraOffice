@@ -76,6 +76,7 @@ export default async function BookingPage({ params }: { params: Promise<{ locale
             rooms={activeRooms}
             blockedDates={upcomingBlocks}
             closedWeekdays={settings.closedWeekdays}
+            waNumberBooking={settings.waNumberBooking || settings.waNumber}
           />
         </div>
       </div>

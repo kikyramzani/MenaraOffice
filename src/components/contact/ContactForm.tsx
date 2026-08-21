@@ -3,15 +3,19 @@
 import { useState, type FormEvent } from 'react'
 import { useTranslations } from 'next-intl'
 import { leadSchema } from '@/lib/schemas'
-import { waLink, WA_NUMBER } from '@/lib/whatsapp'
+import { waLink } from '@/lib/whatsapp'
 import { Icon } from '@/components/ui/Icon'
 
-type Props = { serviceOptions: { slug: string; label: string }[] }
+type Props = {
+  serviceOptions: { slug: string; label: string }[]
+  /** Admin 1 — the general-enquiry inbox. */
+  waNumber: string
+}
 
 const inputClass =
   'w-full rounded-[var(--radius-md)] border border-[var(--color-border)] bg-white px-4 py-3 text-sm text-[var(--color-text)] placeholder:text-[var(--color-text-muted)]/60 focus:border-[var(--brand-500)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-200)]'
 
-export function ContactForm({ serviceOptions }: Props) {
+export function ContactForm({ serviceOptions, waNumber }: Props) {
   const t = useTranslations('contact')
   const [state, setState] = useState<'idle' | 'sending' | 'done'>('idle')
   const [error, setError] = useState<string | null>(null)
@@ -168,7 +172,7 @@ export function ContactForm({ serviceOptions }: Props) {
           <Icon name="arrow-right" className="h-5 w-5" />
         </button>
         <a
-          href={waLink(WA_NUMBER, 'Halo Menara Office, saya ingin konsultasi.')}
+          href={waLink(waNumber, 'Halo Menara Office, saya ingin konsultasi.')}
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex items-center gap-2 rounded-[var(--radius-pill)] bg-[var(--wa-600)] px-6 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-[var(--wa-700)]"

@@ -8,12 +8,13 @@ import type { Booking, Lead, SiteSettings } from '@/lib/data/types'
  * already stored and visible in the admin inbox either way.
  */
 
-async function send(subject: string, html: string, fallbackTo?: string): Promise<void> {
+async function send(subject: string, html: string, fallbackTo?: string[]): Promise<void> {
   const apiKey = process.env.RESEND_API_KEY
   // Env wins so a deployment can redirect notifications without a content
-  // edit; otherwise the admin-editable contact address is the destination.
-  const to = process.env.NOTIFY_EMAIL_TO || fallbackTo
-  if (!apiKey || !to) {
+  // edit; otherwise every admin-editable address gets a copy.
+  const envTo = process.env.NOTIFY_EMAIL_TO
+  const to = envTo ? [envTo] : (fallbackTo ?? []).filter(Boolean)
+  if (!apiKey || to.length === 0) {
     console.info(`[notify] RESEND not configured — skipped email: ${subject}`)
     return
   }
@@ -36,6 +37,12 @@ async function send(subject: string, html: string, fallbackTo?: string): Promise
   }
 }
 
+/** Notifikasi masuk ke kotak internal sekaligus alamat marketing yang publik. */
+function notifyAddresses(settings?: SiteSettings): string[] {
+  if (!settings) return []
+  return [settings.email, settings.emailSecondary].filter(Boolean)
+}
+
 const esc = (value: string): string =>
   value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
 
@@ -48,7 +55,7 @@ export async function notifyNewLead(lead: Lead, settings?: SiteSettings): Promis
      <strong>Email:</strong> ${esc(lead.email)}<br/>
      <strong>Layanan:</strong> ${esc(lead.service)}</p>
      <p>${esc(lead.message)}</p>`,
-    settings?.email,
+    notifyAddresses(settings),
   )
 }
 
@@ -68,6 +75,6 @@ export async function notifyNewBooking(
      <strong>Email:</strong> ${esc(booking.email)}</p>
      <p>${esc(booking.notes)}</p>
      <p>Konfirmasi booking ini dari panel admin.</p>`,
-    settings?.email,
+    notifyAddresses(settings),
   )
 }

@@ -68,7 +68,7 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
                 </span>
                 <div>
                   <p className="text-sm font-bold text-[var(--brand-900)]">{t('waLabel')}</p>
-                  <div className="mt-1 text-sm">
+                  <div className="mt-1 flex flex-col gap-0.5 text-sm">
                     <a
                       href={waLink(settings.waNumber, 'Halo Menara Office')}
                       target="_blank"
@@ -76,7 +76,23 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
                       className="font-semibold text-[var(--brand-600)]"
                     >
                       +{settings.waNumber}
+                      <span className="ml-2 text-xs font-normal text-[var(--color-text-muted)]">
+                        {t('admin1')}
+                      </span>
                     </a>
+                    {settings.waNumberBooking ? (
+                      <a
+                        href={waLink(settings.waNumberBooking, 'Halo Menara Office')}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-semibold text-[var(--brand-600)]"
+                      >
+                        +{settings.waNumberBooking}
+                        <span className="ml-2 text-xs font-normal text-[var(--color-text-muted)]">
+                          {t('admin2')}
+                        </span>
+                      </a>
+                    ) : null}
                   </div>
                 </div>
               </li>
@@ -86,18 +102,14 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
                 </span>
                 <div>
                   <p className="text-sm font-bold text-[var(--brand-900)]">{t('emailLabel')}</p>
-                  <div className="mt-1 flex flex-col text-sm">
-                    <a href={`mailto:${settings.email}`} className="font-semibold text-[var(--brand-600)]">
-                      {settings.email}
+                  {/* Alamat publik saja; `email` dipakai untuk notifikasi internal. */}
+                  <div className="mt-1 text-sm">
+                    <a
+                      href={`mailto:${settings.emailSecondary || settings.email}`}
+                      className="font-semibold text-[var(--brand-600)]"
+                    >
+                      {settings.emailSecondary || settings.email}
                     </a>
-                    {settings.emailSecondary ? (
-                      <a
-                        href={`mailto:${settings.emailSecondary}`}
-                        className="font-semibold text-[var(--brand-600)]"
-                      >
-                        {settings.emailSecondary}
-                      </a>
-                    ) : null}
                   </div>
                 </div>
               </li>
@@ -105,7 +117,7 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
           </div>
 
           <div className="rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-white p-6 shadow-[var(--shadow-lift)] md:p-10">
-            <ContactForm serviceOptions={serviceOptions} />
+            <ContactForm serviceOptions={serviceOptions} waNumber={settings.waNumber} />
           </div>
         </div>
       </div>

@@ -8,11 +8,12 @@
     "contact": "Contact Us",
     "bookRoom": "Book a Meeting Room",
     "menu": "Menu",
-    "closeMenu": "Close menu"
+    "closeMenu": "Close menu",
+    "promo": "Promo"
   },
   "hero": {
     "eyebrow": "Virtual Office · Serviced Office · Meeting Room",
-    "title": "A professional office for your business, starting today",
+    "title": "Complete office solutions for your business",
     "subtitle": "Prestigious addresses in Jakarta, Bekasi, and Bandung, complete with company incorporation, meeting rooms, and a receptionist team ready to help your business grow.",
     "ctaPrimary": "View Pricing",
     "ctaSecondary": "Free Consultation",
@@ -39,7 +40,11 @@
     "askWhatsApp": "Ask on WhatsApp",
     "meetingRoomCapacityHeading": "Meeting Rooms Available per Location",
     "servicedOfficeCapacityHeading": "Available Capacity per Location",
-    "capacityPax": "{count} pax"
+    "capacityPax": "{count} pax",
+    "onRequest": "Contact Us",
+    "consultWhatsApp": "Consult on WhatsApp",
+    "customQuoteTitle": "Pricing is tailored to your case",
+    "customQuoteBody": "Every case has a different scope and paperwork, so we quote it after a consultation. Tell us what you need and our team will send you an estimate."
   },
   "locations": {
     "eyebrow": "Our Locations",
@@ -120,7 +125,9 @@
     "errMessage": "Message must be at least 5 characters",
     "office": "Head Office",
     "emailLabel": "Email",
-    "waLabel": "WhatsApp"
+    "waLabel": "WhatsApp",
+    "admin1": "(Admin 1)",
+    "admin2": "(Admin 2)"
   },
   "about": {
     "eyebrow": "About Us",
@@ -150,6 +157,19 @@
   },
   "partners": {
     "title": "Our Partner"
+  },
+  "promo": {
+    "eyebrow": "Special Promo",
+    "title": "Offers running right now",
+    "subtitle": "Save more during the promo period. Terms and conditions apply.",
+    "benefitsTitle": "Benefits",
+    "validUntil": "Valid until {date}",
+    "cta": "Claim This Promo",
+    "viewAll": "See All Promos",
+    "metaTitle": "Promo",
+    "empty": "No promo is running at the moment.",
+    "discountBadge": "{value} off",
+    "priceBefore": "Regular price"
   },
   "faq": {
     "eyebrow": "FAQ",
@@ -182,7 +202,9 @@
     "newsletter": "Get the latest business tips",
     "newsletterPlaceholder": "Your email address",
     "newsletterButton": "Subscribe",
-    "newsletterSuccess": "Thank you! You are subscribed."
+    "newsletterSuccess": "Thank you! You are subscribed.",
+    "admin1": "(Admin 1)",
+    "admin2": "(Admin 2)"
   },
   "wa": {
     "float": "Chat with us",

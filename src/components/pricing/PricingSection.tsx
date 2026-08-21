@@ -2,19 +2,24 @@ import { getTranslations } from 'next-intl/server'
 import type { Locale } from '@/i18n/routing'
 import type { Service } from '@/lib/data/types'
 import { formatRupiahShort, pickL10n, unitLabelKey, type PriceUnit } from '@/lib/format'
-import { waLink, WA_NUMBER } from '@/lib/whatsapp'
+import { waLink } from '@/lib/whatsapp'
 import { clsx } from '@/lib/clsx'
 import { Icon } from '@/components/ui/Icon'
 import { SectionHeading } from '@/components/ui/SectionHeading'
 import { RevealOnScroll } from '@/components/ui/RevealOnScroll'
 
-type Props = { service: Service; locale: Locale }
+type Props = {
+  service: Service
+  locale: Locale
+  /** Admin 1 — the general-enquiry inbox behind every plan CTA. */
+  waNumber: string
+}
 
 /**
  * Hostinger-style tier cards: the popular plan is elevated, badge-tagged and
  * rendered in brand navy so the hierarchy is unmistakable.
  */
-export async function PricingSection({ service, locale }: Props) {
+export async function PricingSection({ service, locale, waNumber }: Props) {
   const t = await getTranslations('services')
   const tiers = [...service.tiers].sort((a, b) => a.order - b.order)
   const serviceName = pickL10n(service.name, locale)
@@ -23,6 +28,11 @@ export async function PricingSection({ service, locale }: Props) {
   // noun so it needs the separating space.
   const unitLabel = (unit: PriceUnit) =>
     unit === 'once' ? ` ${t('once')}` : t(unitLabelKey(unit))
+
+  const consultMessage =
+    locale === 'id'
+      ? `Halo Menara Office, saya ingin konsultasi mengenai ${serviceName}.`
+      : `Hello Menara Office, I'd like a consultation about ${serviceName}.`
 
   return (
     <section className="section bg-[var(--color-surface-alt)]" aria-labelledby="pricing-heading" id="pricing">
@@ -33,6 +43,26 @@ export async function PricingSection({ service, locale }: Props) {
           subtitle={t('pricingSubtitle')}
         />
 
+        {tiers.length === 0 ? (
+          // Layanan yang harganya selalu dihitung per kasus tidak punya kartu
+          // sama sekali; grid kosong akan tampak seperti bug, jadi ganti
+          // dengan satu blok ajakan konsultasi.
+          <div className="mx-auto mt-14 max-w-2xl rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-white p-9 text-center shadow-[var(--shadow-card)]">
+            <h3 className="text-xl font-bold text-[var(--brand-900)]">{t('customQuoteTitle')}</h3>
+            <p className="mt-3 text-sm leading-relaxed text-[var(--color-text-muted)]">
+              {t('customQuoteBody')}
+            </p>
+            <a
+              href={waLink(waNumber, consultMessage)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-7 inline-flex items-center justify-center gap-2 rounded-[var(--radius-pill)] bg-[var(--wa-600)] px-7 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-[var(--wa-700)]"
+            >
+              <Icon name="whatsapp" className="h-5 w-5" />
+              {t('consultWhatsApp')}
+            </a>
+          </div>
+        ) : (
         <div
           className={clsx(
             'mx-auto mt-14 grid max-w-5xl gap-6',
@@ -69,17 +99,25 @@ export async function PricingSection({ service, locale }: Props) {
                     {pickL10n(tier.priceNote, locale)}
                   </p>
 
-                  <p className="mt-5 flex items-baseline gap-1">
-                    <span className={clsx('text-sm font-semibold', isPopular ? 'text-[var(--brand-300)]' : 'text-[var(--color-text-muted)]')}>
-                      Rp
-                    </span>
-                    <span className={clsx('text-4xl font-extrabold tracking-tight', isPopular ? 'text-white' : 'text-[var(--brand-900)]')}>
-                      {formatRupiahShort(tier.price, locale)}
-                    </span>
-                    <span className={clsx('text-sm', isPopular ? 'text-[var(--brand-300)]' : 'text-[var(--color-text-muted)]')}>
-                      {unitLabel(tier.unit)}
-                    </span>
-                  </p>
+                  {/* `price: 0` adalah penanda "harga atas permintaan" —
+                      menampilkan angkanya berarti mengiklankan Rp 0. */}
+                  {tier.price > 0 ? (
+                    <p className="mt-5 flex items-baseline gap-1">
+                      <span className={clsx('text-sm font-semibold', isPopular ? 'text-[var(--brand-300)]' : 'text-[var(--color-text-muted)]')}>
+                        Rp
+                      </span>
+                      <span className={clsx('text-4xl font-extrabold tracking-tight', isPopular ? 'text-white' : 'text-[var(--brand-900)]')}>
+                        {formatRupiahShort(tier.price, locale)}
+                      </span>
+                      <span className={clsx('text-sm', isPopular ? 'text-[var(--brand-300)]' : 'text-[var(--color-text-muted)]')}>
+                        {unitLabel(tier.unit)}
+                      </span>
+                    </p>
+                  ) : (
+                    <p className={clsx('mt-5 text-3xl font-extrabold tracking-tight', isPopular ? 'text-white' : 'text-[var(--brand-900)]')}>
+                      {t('onRequest')}
+                    </p>
+                  )}
 
                   <ul className="mt-6 flex-1 space-y-3">
                     {tier.features.map((feature, featureIndex) => (
@@ -96,7 +134,7 @@ export async function PricingSection({ service, locale }: Props) {
                   </ul>
 
                   <a
-                    href={waLink(WA_NUMBER, message)}
+                    href={waLink(waNumber, message)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className={clsx(
@@ -106,14 +144,15 @@ export async function PricingSection({ service, locale }: Props) {
                         : 'bg-[var(--brand-700)] text-white hover:bg-[var(--brand-800)]',
                     )}
                   >
-                    {t('choosePlan')}
-                    <Icon name="arrow-right" className="h-4 w-4" />
+                    {tier.price > 0 ? t('choosePlan') : t('consultWhatsApp')}
+                    <Icon name={tier.price > 0 ? 'arrow-right' : 'whatsapp'} className="h-4 w-4" />
                   </a>
                 </div>
               </RevealOnScroll>
             )
           })}
         </div>
+        )}
       </div>
     </section>
   )

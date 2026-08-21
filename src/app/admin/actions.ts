@@ -408,6 +408,8 @@ export async function saveSettingsAction(formData: FormData): Promise<void> {
 
   const updated: SiteSettings = {
     waNumber: text(formData, 'waNumber').replace(/\D/g, '') || existing.waNumber,
+    waNumberBooking:
+      text(formData, 'waNumberBooking').replace(/\D/g, '') || existing.waNumberBooking,
     email: text(formData, 'email') || existing.email,
     emailSecondary: text(formData, 'emailSecondary'),
     instagram: text(formData, 'instagram'),

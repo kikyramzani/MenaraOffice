@@ -49,6 +49,7 @@ export default async function ServicePage({ params }: { params: Promise<Params> 
   const tBooking = await getTranslations('booking')
   const tHero = await getTranslations('hero')
   const typedLocale = locale as Locale
+  const settings = await getStore().getSettings()
   const isMeetingRoom = service.slug === 'meeting-room'
   const isServicedOffice = service.slug === 'serviced-office'
 
@@ -162,7 +163,7 @@ export default async function ServicePage({ params }: { params: Promise<Params> 
 
       <LocationCapacityList title={capacityHeading} items={capacityItems} />
 
-      <PricingSection service={service} locale={typedLocale} />
+      <PricingSection service={service} locale={typedLocale} waNumber={settings.waNumber} />
 
       {isMeetingRoom ? (
         <section className="section">

@@ -26,9 +26,11 @@ export async function Hero() {
               <span className="h-1.5 w-1.5 rounded-full bg-[var(--accent-500)]" />
               {t('eyebrow')}
             </p>
+            {/* Diukur dalam `ch` supaya judul jatuh tiga baris di semua
+                ukuran layar, bukan mengikuti lebar viewport. */}
             <h1
               id="hero-heading"
-              className="text-[length:var(--text-hero)] font-extrabold leading-[1.05] tracking-tight text-[var(--brand-900)]"
+              className="max-w-[14ch] text-balance text-[length:var(--text-hero)] font-extrabold leading-[1.05] tracking-tight text-[var(--brand-900)]"
             >
               {t('title')}
             </h1>
@@ -77,7 +79,7 @@ export async function Hero() {
                 Virtual Office
               </p>
               <p className="mt-0.5 text-lg font-extrabold">
-                Rp 4 Juta<span className="text-xs font-medium text-[var(--brand-300)]">/bln</span>
+                Rp 4 Juta<span className="text-xs font-medium text-[var(--brand-300)]">/thn</span>
               </p>
             </div>
           </div>

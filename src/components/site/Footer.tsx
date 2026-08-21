@@ -110,25 +110,34 @@ export async function Footer({ locale, services, locations, settings }: Props) {
                 >
                   <Icon name="whatsapp" className="h-4 w-4 shrink-0 text-[var(--brand-300)]" />
                   +{settings.waNumber}
+                  <span className="text-xs text-[var(--brand-300)]">{t('admin1')}</span>
                 </a>
               </li>
-              <li>
-                <a href={`mailto:${settings.email}`} className="flex items-center gap-2.5 hover:text-white">
-                  <Icon name="mail" className="h-4 w-4 shrink-0 text-[var(--brand-300)]" />
-                  {settings.email}
-                </a>
-              </li>
-              {settings.emailSecondary ? (
+              {settings.waNumberBooking ? (
                 <li>
                   <a
-                    href={`mailto:${settings.emailSecondary}`}
+                    href={waLink(settings.waNumberBooking, 'Halo Menara Office')}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="flex items-center gap-2.5 hover:text-white"
                   >
-                    <Icon name="mail" className="h-4 w-4 shrink-0 text-[var(--brand-300)]" />
-                    {settings.emailSecondary}
+                    <Icon name="whatsapp" className="h-4 w-4 shrink-0 text-[var(--brand-300)]" />
+                    +{settings.waNumberBooking}
+                    <span className="text-xs text-[var(--brand-300)]">{t('admin2')}</span>
                   </a>
                 </li>
               ) : null}
+              {/* Hanya alamat publik yang ditampilkan; `email` adalah kotak
+                  masuk internal untuk notifikasi. */}
+              <li>
+                <a
+                  href={`mailto:${settings.emailSecondary || settings.email}`}
+                  className="flex items-center gap-2.5 hover:text-white"
+                >
+                  <Icon name="mail" className="h-4 w-4 shrink-0 text-[var(--brand-300)]" />
+                  {settings.emailSecondary || settings.email}
+                </a>
+              </li>
             </ul>
             <p className="mt-5 text-xs font-semibold uppercase tracking-wider text-[var(--brand-300)]">
               {t('locations')}

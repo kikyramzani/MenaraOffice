@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test'
 import { adminLogin, gotoHydrated } from './helpers'
 
 const BREAKPOINTS = [320, 375, 768, 1024, 1440, 1920] as const
-const PAGES = ['/id', '/id/virtual-office', '/id/booking', '/id/lokasi', '/id/kontak'] as const
+const PAGES = ['/id', '/id/virtual-office', '/id/booking', '/id/lokasi', '/id/kontak', '/id/promo'] as const
 
 test.describe('Responsive tanpa overflow horizontal', () => {
   for (const width of BREAKPOINTS) {

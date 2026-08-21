@@ -4,7 +4,11 @@ export type L10n = { id: string; en: string }
 export type PricingTier = {
   id: string
   name: string
-  /** Price in IDR. */
+  /**
+   * Price in IDR. Zero is a deliberate sentinel for "on request" — the card
+   * then renders a contact prompt instead of a figure, used where the quote
+   * genuinely varies (a Yayasan depends on its structure and purpose).
+   */
   price: number
   unit: 'month' | 'year' | 'hour' | 'once'
   priceNote: L10n
@@ -139,9 +143,13 @@ export type BlockedDate = {
 }
 
 export type SiteSettings = {
+  /** Admin 1 — general enquiries: floating button, contact page, pricing CTAs. */
   waNumber: string
+  /** Admin 2 — meeting-room bookings only, so the two inboxes stay separate. */
+  waNumberBooking: string
+  /** Notification inbox. Never rendered publicly. */
   email: string
-  /** Second public address; both are shown in the footer and contact page. */
+  /** The address shown on the site; notifications go to both. */
   emailSecondary: string
   instagram: string
   headOffice: string

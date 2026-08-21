@@ -120,7 +120,7 @@ export default async function LocaleLayout({
             locations={locations.filter((location) => location.active)}
             settings={settings}
           />
-          <WhatsAppFloat />
+          <WhatsAppFloat waNumber={settings.waNumber} />
         </NextIntlClientProvider>
         <Analytics />
       </body>

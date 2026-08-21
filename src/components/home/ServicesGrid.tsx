@@ -24,7 +24,11 @@ export async function ServicesGrid({ services, locale }: Props) {
 
         <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {services.map((service, index) => {
-            const cheapest = [...service.tiers].sort((a, b) => a.price - b.price)[0]
+            // `price: 0` menandai "harga atas permintaan", bukan angka nyata —
+            // ikut disortir berarti kartunya mengiklankan "Mulai dari Rp 0".
+            const cheapest = service.tiers
+              .filter((tier) => tier.price > 0)
+              .sort((a, b) => a.price - b.price)[0]
             // The first two services get the large "feature" treatment — an
             // intentional hierarchy break instead of a uniform card grid.
             const isFeature = index < 2

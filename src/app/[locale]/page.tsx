@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation'
 import { routing, type Locale } from '@/i18n/routing'
 import { getStore } from '@/lib/data'
 import { Hero } from '@/components/home/Hero'
+import { PromoSection } from '@/components/home/PromoSection'
 import { PartnersMarquee } from '@/components/home/PartnersMarquee'
 import { ServicesGrid } from '@/components/home/ServicesGrid'
 import { LocationsPreview } from '@/components/home/LocationsPreview'
@@ -19,16 +20,18 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   if (!hasLocale(routing.locales, locale)) notFound()
 
   const store = getStore()
-  const [services, locations, testimonials, partners] = await Promise.all([
+  const [services, locations, testimonials, partners, settings] = await Promise.all([
     store.getServices(),
     store.getLocations(),
     store.getTestimonials(),
     store.getPartners(),
+    store.getSettings(),
   ])
 
   return (
     <>
       <Hero />
+      <PromoSection locale={locale as Locale} waNumber={settings.waNumber} />
       <PartnersMarquee partners={partners} />
       <ServicesGrid services={services.filter((s) => s.active)} locale={locale as Locale} />
       <LocationsPreview locations={locations.filter((l) => l.active)} />

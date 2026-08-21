@@ -1,6 +1,34 @@
-import type { BlockedDate, Database, L10n } from './types'
+import type { BlockedDate, Database, L10n, PricingTier } from './types'
 
 const l = (id: string, en: string): L10n => ({ id, en })
+
+/**
+ * Serviced Office tiers differ only by room size and price; the inclusions are
+ * identical, so they are generated rather than copied three times.
+ */
+const servicedOfficeTier = (
+  id: string,
+  pax: number,
+  price: number,
+  order: number,
+): PricingTier => ({
+  id,
+  name: `${pax} Pax`,
+  price,
+  unit: 'month',
+  priceNote: l('Start From', 'Start From'),
+  features: [
+    l(`Kantor privat ${pax} orang`, `Private office for ${pax}`),
+    l('Free meeting room 12 jam/bulan', 'Free meeting room, 12 hrs/month'),
+    l('Free pantry (air mineral, teh, kopi)', 'Free pantry (water, tea, coffee)'),
+    l('Siap pakai, lengkap dengan furnitur', 'Move-in ready and fully furnished'),
+    l('Office boy & resepsionis', 'Office support staff & reception'),
+    l('Free domisili surat', 'Free mail-handling address'),
+    l('Fleksibilitas penyewaan', 'Flexible lease terms'),
+  ],
+  isPopular: false,
+  order,
+})
 
 /** Date-derived ids keep the Supabase provisioning insert idempotent. */
 const holiday = (date: string, id: string, en: string): BlockedDate => ({
@@ -74,7 +102,8 @@ export const seedDatabase: Database = {
           priceNote: l('Meeting Room Semua Cabang', 'All-Branch Meeting Room'),
           features: [
             l('Semua fitur Basic', 'Everything in Basic'),
-            l('Free meeting room di semua cabang Menara Office', 'Free meeting room at every Menara Office branch'),
+            l('Free meeting room 120 jam/tahun', 'Free meeting room, 120 hrs/year'),
+            l('Berlaku di semua cabang Menara Office', 'Valid at every Menara Office branch'),
           ],
           isPopular: false,
           order: 2,
@@ -107,24 +136,9 @@ export const seedDatabase: Database = {
         l('Free domisili surat', 'Free mail-handling address'),
       ],
       tiers: [
-        {
-          id: 'tier-so-basic',
-          name: 'Basic',
-          price: 4_000_000,
-          unit: 'month',
-          priceNote: l('Start From', 'Start From'),
-          features: [
-            l('Efisiensi biaya & waktu', 'Cost & time efficiency'),
-            l('Fleksibilitas penyewaan', 'Flexible lease terms'),
-            l('Siap pakai', 'Move-in ready'),
-            l('Free meeting room', 'Free meeting room'),
-            l('Free pantry', 'Free pantry'),
-            l('Office boy', 'Office support staff'),
-            l('Free domisili surat', 'Free mail-handling address'),
-          ],
-          isPopular: false,
-          order: 1,
-        },
+        servicedOfficeTier('tier-so-2pax', 2, 4_000_000, 1),
+        servicedOfficeTier('tier-so-3pax', 3, 5_000_000, 2),
+        servicedOfficeTier('tier-so-4pax', 4, 6_000_000, 3),
       ],
       order: 2,
       active: true,
@@ -195,7 +209,7 @@ export const seedDatabase: Database = {
       tiers: [
         {
           id: 'tier-pt-pt',
-          name: 'PT/CV/Firma/Yayasan',
+          name: 'PT/CV/Firma',
           price: 6_000_000,
           unit: 'once',
           priceNote: l('Start From', 'Start From'),
@@ -207,6 +221,23 @@ export const seedDatabase: Database = {
           ],
           isPopular: false,
           order: 1,
+        },
+        {
+          id: 'tier-pt-yayasan',
+          name: 'Yayasan',
+          // Nol = harga atas permintaan: biaya yayasan tergantung struktur
+          // pengurus dan maksud pendiriannya, jadi tidak bisa dipatok di muka.
+          price: 0,
+          unit: 'once',
+          priceNote: l('Konsultasi Dahulu', 'Consultation First'),
+          features: [
+            l('Akta pendirian yayasan', 'Foundation deed'),
+            l('SK Kemenkumham', 'Ministry approval'),
+            l('NPWP badan & NIB', 'Corporate tax ID & business licence'),
+            l('Biaya menyesuaikan struktur & tujuan yayasan', 'Fee depends on the structure and purpose'),
+          ],
+          isPopular: false,
+          order: 2,
         },
       ],
       order: 4,
@@ -232,22 +263,9 @@ export const seedDatabase: Database = {
         l('Sesi privat & rahasia', 'Private, confidential sessions'),
         l('Tersedia di semua lokasi', 'Available at every location'),
       ],
-      tiers: [
-        {
-          id: 'tier-lc-hourly',
-          name: 'Per Sesi',
-          price: 100_000,
-          unit: 'hour',
-          priceNote: l('Start From', 'Start From'),
-          features: [
-            l('Sesi 1 jam dengan konsultan', 'One-hour consultant session'),
-            l('Ringkasan rekomendasi tertulis', 'Written recommendation summary'),
-            l('Ruang konsultasi privat', 'Private consultation room'),
-          ],
-          isPopular: false,
-          order: 1,
-        },
-      ],
+      // Tanpa tier: tarif konsultasi tidak dipublikasikan, halaman layanan
+      // menampilkan ajakan konsultasi lewat WhatsApp sebagai gantinya.
+      tiers: [],
       order: 5,
       active: true,
     },
@@ -260,7 +278,7 @@ export const seedDatabase: Database = {
       name: 'Menara Karya Tower',
       city: 'Jakarta Selatan',
       address:
-        'Menara Karya, Jl. H.R. Rasuna Said Blok X-5 Kav. 1-2, Kuningan, Jakarta Selatan 12950',
+        'Menara Karya Tower (Adaro), Lt 21 Unit G, Jl. H.R. Rasuna Said Blok X-5 Kav. 1-2, RT 01 RW 02, Kel. Kuningan Timur, Kec. Setiabudi, Jakarta Selatan 12950',
       photo: '/images/locations/menara-karya.webp',
       gallery: [
         '/images/locations/menara-karya-01.webp',
@@ -286,7 +304,8 @@ export const seedDatabase: Database = {
       slug: 'wisma-perkasa-pejaten',
       name: 'Wisma Perkasa',
       city: 'Jakarta Selatan',
-      address: 'Wisma Perkasa, Jl. Warung Jati Barat, Pejaten, Jakarta Selatan',
+      address:
+        'Wisma Perkasa, Jl. Hj. Tutty Alawiyah 21B No. 6-7, Kel. Pejaten Barat, Kec. Pasar Minggu, Jakarta Selatan 12510',
       photo: '/images/locations/wisma-perkasa.webp',
       gallery: [
         '/images/locations/wisma-perkasa-01.webp',
@@ -298,10 +317,10 @@ export const seedDatabase: Database = {
         '/images/locations/wisma-perkasa-07.webp',
         '/images/locations/wisma-perkasa-08.webp',
       ],
-      gmapsQuery: 'Wisma Perkasa, Warung Jati Barat, Jakarta Selatan',
+      gmapsQuery: 'Wisma Perkasa, Jl. Hj. Tutty Alawiyah, Pejaten Barat, Jakarta Selatan',
       facilities: [
         l('Lingkungan tenang & strategis', 'Quiet, strategic neighbourhood'),
-        l('Dekat Transjakarta', 'Near Transjakarta bus stop'),
+        l('Akses Transjakarta', 'Transjakarta access'),
         l('Parkir luas', 'Ample parking'),
         l('Meeting room tersedia', 'Meeting rooms available'),
       ],
@@ -314,7 +333,8 @@ export const seedDatabase: Database = {
       slug: 'epiwalk-kuningan',
       name: 'Epiwalk Rasuna Epicentrum',
       city: 'Jakarta Selatan',
-      address: 'Epiwalk Office Suite, Rasuna Epicentrum, Kuningan, Jakarta Selatan',
+      address:
+        'Epiwalk Office Suite Lt 6 Unit B603, Jl. Epicentrum Boulevard Barat, RT.2/RW.5, Karet Kuningan, Kec. Setiabudi, Jakarta Selatan 12940',
       photo: '/images/locations/epiwalk.webp',
       gallery: [
         '/images/locations/epiwalk-01.webp',
@@ -342,7 +362,8 @@ export const seedDatabase: Database = {
       slug: 'cempaka-mas',
       name: 'Ruko Mega Grosir Cempaka Mas',
       city: 'Jakarta Pusat',
-      address: 'Ruko Mega Grosir Cempaka Mas, Jl. Letjend Suprapto, Jakarta Pusat',
+      address:
+        'Ruko Mega Grosir Cempaka Mas, Jl. Letjend Suprapto Blok D No. 22, Sumur Batu, Kec. Kemayoran, Jakarta Pusat 10640',
       photo: '/images/locations/cempaka-mas.webp',
       gallery: [
         '/images/locations/cempaka-mas-01.webp',
@@ -359,7 +380,7 @@ export const seedDatabase: Database = {
         l('Front office siap melayani', 'Staffed front office'),
         l('Meeting room tersedia', 'Meeting rooms available'),
       ],
-      servicedOfficeCapacities: [],
+      servicedOfficeCapacities: [2, 3, 4],
       order: 4,
       active: true,
     },
@@ -414,8 +435,8 @@ export const seedDatabase: Database = {
   rooms: [
     { id: 'room-mk-a', locationId: 'loc-menara-karya', name: 'Ruang Rapat Karya', capacity: 6, pricePerHour: 150_000, active: true },
     { id: 'room-wp-a', locationId: 'loc-wisma-perkasa', name: 'Ruang Rapat Perkasa', capacity: 8, pricePerHour: 150_000, active: true },
-    { id: 'room-ep-a', locationId: 'loc-epiwalk', name: 'Ruang Rapat Epiwalk', capacity: 6, pricePerHour: 150_000, active: true },
-    { id: 'room-cm-a', locationId: 'loc-cempaka-mas', name: 'Ruang Rapat Cempaka', capacity: 6, pricePerHour: 150_000, active: true },
+    { id: 'room-ep-a', locationId: 'loc-epiwalk', name: 'Ruang Rapat Epiwalk', capacity: 5, pricePerHour: 150_000, active: true },
+    { id: 'room-cm-a', locationId: 'loc-cempaka-mas', name: 'Ruang Rapat Cempaka', capacity: 8, pricePerHour: 150_000, active: true },
     { id: 'room-bk-a', locationId: 'loc-bekasi', name: 'Ruang Rapat Celebration', capacity: 8, pricePerHour: 150_000, active: true },
     { id: 'room-bd-a', locationId: 'loc-bandung', name: 'Ruang Rapat MTC', capacity: 8, pricePerHour: 150_000, active: true },
   ],
@@ -532,12 +553,14 @@ export const seedDatabase: Database = {
   ],
 
   settings: {
-    waNumber: '6287752556600',
+    // Admin 1 melayani pertanyaan umum, Admin 2 khusus booking ruang rapat.
+    waNumber: '6282262981118',
+    waNumberBooking: '6287752556600',
     email: 'menaraoffice.id@gmail.com',
     emailSecondary: 'marketing@menaraoffice.id',
     instagram: 'menaraoffice.id',
     headOffice:
-      'Menara Karya, Jl. H.R. Rasuna Said Blok X-5 Kav. 1-2, Kuningan, Jakarta Selatan 12950',
+      'Menara Karya Tower (Adaro), Lt 21 Unit G, Jl. H.R. Rasuna Said Blok X-5 Kav. 1-2, Kel. Kuningan Timur, Kec. Setiabudi, Jakarta Selatan 12950',
     bookingOpenHour: 8,
     bookingCloseHour: 20,
     // Sabtu (6) dan Minggu (0) tutup: kantor libur, ruangan tidak disewakan.

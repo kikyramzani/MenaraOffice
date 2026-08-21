@@ -23,13 +23,37 @@ export default async function AdminSettingsPage() {
       <form action={saveSettingsAction} className="max-w-2xl">
         <Card>
           <div className="grid gap-4 md:grid-cols-2">
-            <Field label="Nomor WhatsApp" htmlFor="waNumber" hint="Format internasional tanpa +, contoh: 6282262981118">
+            <Field
+              label="WhatsApp Admin 1 (umum)"
+              htmlFor="waNumber"
+              hint="Tombol chat mengambang, halaman kontak, tombol paket. Format tanpa +, contoh: 6282262981118"
+            >
               <input id="waNumber" name="waNumber" defaultValue={settings.waNumber} className={adminInputClass} />
             </Field>
-            <Field label="Email utama" htmlFor="email" hint="Juga jadi tujuan notifikasi leads & booking">
+            <Field
+              label="WhatsApp Admin 2 (booking)"
+              htmlFor="waNumberBooking"
+              hint="Khusus booking ruang rapat dan notifikasi booking"
+            >
+              <input
+                id="waNumberBooking"
+                name="waNumberBooking"
+                defaultValue={settings.waNumberBooking}
+                className={adminInputClass}
+              />
+            </Field>
+            <Field
+              label="Email notifikasi (tidak tampil di web)"
+              htmlFor="email"
+              hint="Kotak masuk internal untuk leads & booking"
+            >
               <input id="email" name="email" type="email" defaultValue={settings.email} className={adminInputClass} />
             </Field>
-            <Field label="Email sekunder" htmlFor="emailSecondary" hint="Ikut tampil di footer & halaman kontak">
+            <Field
+              label="Email publik"
+              htmlFor="emailSecondary"
+              hint="Satu-satunya email yang tampil di footer & halaman kontak; ikut menerima notifikasi"
+            >
               <input
                 id="emailSecondary"
                 name="emailSecondary"

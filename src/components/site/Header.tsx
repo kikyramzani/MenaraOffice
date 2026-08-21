@@ -128,6 +128,18 @@ export function Header({ services }: Props) {
           <Link href="/lokasi" className={linkClass('/lokasi')}>
             {t('locations')}
           </Link>
+          {/* Diberi warna aksen supaya menonjol dari item nav lain. */}
+          <Link
+            href="/promo"
+            className={clsx(
+              'ml-1 rounded-[var(--radius-pill)] px-3.5 py-2 text-sm font-bold transition-colors',
+              pathname === '/promo'
+                ? 'bg-[var(--accent-500)] text-[var(--brand-950)]'
+                : 'bg-[var(--accent-100)] text-[var(--brand-900)] hover:bg-[var(--accent-500)]',
+            )}
+          >
+            {t('promo')}
+          </Link>
           <Link href="/tips-bisnis" className={linkClass('/tips-bisnis')}>
             {t('blog')}
           </Link>
@@ -181,6 +193,12 @@ export function Header({ services }: Props) {
             ))}
             <Link href="/lokasi" className="rounded-md px-3 py-3 font-semibold text-[var(--brand-900)]">
               {t('locations')}
+            </Link>
+            <Link
+              href="/promo"
+              className="rounded-md bg-[var(--accent-100)] px-3 py-3 font-bold text-[var(--brand-900)]"
+            >
+              {t('promo')}
             </Link>
             <Link href="/tips-bisnis" className="rounded-md px-3 py-3 font-semibold text-[var(--brand-900)]">
               {t('blog')}

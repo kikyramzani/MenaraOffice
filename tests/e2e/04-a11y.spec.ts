@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test'
 import AxeBuilder from '@axe-core/playwright'
 import { adminLogin } from './helpers'
 
-const PUBLIC_PAGES = ['/id', '/id/virtual-office', '/id/booking', '/id/kontak', '/id/lokasi']
+const PUBLIC_PAGES = ['/id', '/id/virtual-office', '/id/booking', '/id/kontak', '/id/lokasi', '/id/promo']
 
 test.describe('Aksesibilitas (axe-core)', () => {
   // Reveal animations mid-transition make contrast checks non-deterministic;
